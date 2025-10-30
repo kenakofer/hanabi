@@ -19,7 +19,7 @@
       newCards.push(incrementAndGet()); // add the new card
       cardsInHandStore.set(newCards); // update store
       action.id = selectedId;
-      $cardsSelectedStore.clear(); // Clear selection after action
+      cardsSelectedStore.set(new Set<number>()); // Clear selection after action
       actionStore.push(action); // store the action
     }
   }
