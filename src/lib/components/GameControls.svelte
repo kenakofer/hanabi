@@ -4,6 +4,7 @@
   import { actionStore } from "../stores/actionStore";
   import gameOrReviewStore from "../stores/gameOrReviewStore";
   import { get } from "svelte/store";
+  import { onMount, onDestroy } from "svelte";
 
   import PlayDiscardSelectedCard from "./PlayDiscardSelectedCard.svelte";
   import MoreActionsMenu from "./MoreActionsMenu.svelte";
@@ -20,6 +21,37 @@
   let wakeLock: WakeLockSentinel | null = null;
   let wakeLockSupported = "wakeLock" in navigator;
   let wakeLockButtonText = "Wake Lock Off"; // Initial text
+
+  // Fullscreen toggle (shown on mobile only — see CSS). Only render the button
+  // where the Fullscreen API is actually available.
+  let fullscreenSupported =
+    typeof document !== "undefined" &&
+    !!(document.documentElement.requestFullscreen || (document.documentElement as any).webkitRequestFullscreen);
+  let isFullscreen = false;
+
+  function fullscreenElement(): Element | null {
+    return document.fullscreenElement || (document as any).webkitFullscreenElement || null;
+  }
+
+  async function toggleFullscreen() {
+    try {
+      if (!fullscreenElement()) {
+        const el = document.documentElement as any;
+        if (el.requestFullscreen) await el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      } else {
+        const doc = document as any;
+        if (doc.exitFullscreen) await doc.exitFullscreen();
+        else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
+      }
+    } catch (err) {
+      console.error(`Could not toggle fullscreen: ${err}`);
+    }
+  }
+
+  function onFullscreenChange() {
+    isFullscreen = !!fullscreenElement();
+  }
 
   async function toggleWakeLock() {
     if (!wakeLock) {
@@ -157,6 +189,15 @@
       }
     }
   }
+
+  onMount(() => {
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", onFullscreenChange);
+  });
+  onDestroy(() => {
+    document.removeEventListener("fullscreenchange", onFullscreenChange);
+    document.removeEventListener("webkitfullscreenchange", onFullscreenChange);
+  });
 </script>
 
 <div class="game-controls">
@@ -188,6 +229,16 @@
   </div>
 
   <div class="secondary-actions">
+    {#if fullscreenSupported}
+      <button
+        class="fullscreen-btn"
+        on:click={toggleFullscreen}
+        aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+        title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+      >
+        {isFullscreen ? "🗗" : "⛶"}
+      </button>
+    {/if}
     <button on:click={toggleGameOrReview}>
       {reviewLabel}
     </button>
@@ -225,5 +276,20 @@
 
   .hint-panel {
     align-self: flex-end; /* Aligns the hint panel button at the end */
+  }
+
+  /* Fullscreen toggle is only useful on mobile / touch devices, so hide it
+     on devices with a fine pointer (mouse) such as desktops. */
+  .fullscreen-btn {
+    display: none;
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+  @media (hover: none) and (pointer: coarse) {
+    .fullscreen-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 </style>
