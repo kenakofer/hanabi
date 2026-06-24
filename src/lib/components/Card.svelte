@@ -33,16 +33,17 @@
   $: localMode = $activeMenuCard === id ? "menu" : "card";
   $: isMenuActive = $activeMenuCard !== null;
   $: numberOfCards = $gameConfigStore.numberOfCards;
-  // Selected and hinted are now shown via a drop shadow and a raised position
-  // (see CSS), so they no longer drive the border colour. The border still
-  // conveys critical / finessed / chop-moved / default.
+  // Selected is shown via a white glow (see CSS); the border conveys
+  // critical / hinted / finessed / chop-moved / default.
   $: borderColour = isCritical
     ? "var(--border-critical)"
-    : isFinessed
-      ? "var(--border-finessed)"
-      : isChopMoved
-        ? "var(--border-chopmoved)"
-        : "var(--border-default)";
+    : isHinted
+      ? "var(--border-hinted)"
+      : isFinessed
+        ? "var(--border-finessed)"
+        : isChopMoved
+          ? "var(--border-chopmoved)"
+          : "var(--border-default)";
 
   let knownColour: string | null = null;
   $: {
@@ -282,7 +283,7 @@
 <div
   class="card no-{numberOfCards} {knownColour != null
     ? knownColour
-    : ''} {selected ? 'selected' : ''} {isHinted ? 'hinted' : ''}"
+    : ''} {selected ? 'selected' : ''}"
   tabindex="0"
   role="button"
   on:contextmenu|preventDefault={handleRightClick}
@@ -396,24 +397,13 @@
   }
 
   .card {
-    transition:
-      transform 0.12s ease,
-      box-shadow 0.12s ease;
-  }
-
-  /* Clued cards sit raised out of the hand instead of getting a yellow border. */
-  .hinted {
-    transform: translateY(-20px);
+    transition: box-shadow 0.12s ease;
   }
 
   /* Selected cards get a white glow instead of a blue border. */
   .selected {
     filter: brightness(1.2);
     box-shadow: 0 0 12px 4px rgba(255, 255, 255, 0.9);
-  }
-  /* Keep the raise when a clued card is also selected. */
-  .hinted.selected {
-    transform: translateY(-20px);
   }
 
   .card-id {
@@ -535,16 +525,33 @@
   }
 
   .card .colour-icons {
-    display: grid; /* Use grid layout */
-    grid-template-columns: repeat(
-      auto-fit,
-      minmax(46px, 1fr)
-    ); /* Create as many columns as can fit, but not less than 46px */
-    grid-auto-flow: row dense;
-    grid-gap: 2px; /* Set gap between icons */
-    justify-items: center; /* Center items horizontally */
-    height: 46%; /* Set the height */
+    display: flex; /* single row, no wrapping */
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    height: 46%;
     padding-top: 5px;
+  }
+
+  /* Each colour pip takes an equal share of the row and shrinks to fit when
+     there are several, but is capped so a lone pip doesn't balloon. The cap is
+     ~30% larger than the old 35px grid cell. */
+  .card .colour-icons > .trait-icon {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 46px;
+    height: 100%;
+    margin: 0 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card .colour-icons > .trait-icon :global(svg) {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
   }
 
   .number-icons > *,
