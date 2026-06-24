@@ -51,7 +51,8 @@
   function getStandardSuitAmount(suits: SuitEnum): number {
     let output = 0;
     let i = 0;
-    while (i <= 4) {
+    // standard suits occupy bits 0-5 (Red..Teal)
+    while (i <= 5) {
       if ((suits & (1 << i)) > 0) {
         output += 1;
       }
@@ -177,6 +178,7 @@
             <option value={3}>3</option>
             <option value={4}>4</option>
             <option value={5}>5</option>
+            <option value={6}>6</option>
           </select>
 
           <p>Special suits</p>

@@ -8,6 +8,7 @@
   import Rainbow from "./suit-icons/Rainbow.svelte";
   import RainbowEmpty from "./suit-icons/RainbowEmpty.svelte";
   import Red from "./suit-icons/Red.svelte";
+  import Teal from "./suit-icons/Teal.svelte";
   import White from "./suit-icons/White.svelte";
   import Yellow from "./suit-icons/Yellow.svelte";
 
@@ -30,6 +31,9 @@
 {/if}
 {#if colour === SuitEnum.Green}
   <Green {strokeColour} />
+{/if}
+{#if colour === SuitEnum.Teal}
+  <Teal {strokeColour} />
 {/if}
 {#if colour === SuitEnum.Rainbow && isOnlyRainbow === false}
   <Rainbow {strokeColour} />

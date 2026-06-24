@@ -4,12 +4,14 @@ export enum SuitEnum {
   Blue = 1 << 2,
   White = 1 << 3,
   Green = 1 << 4,
-  Rainbow = 1 << 5,
-  Black = 1 << 6,
+  Teal = 1 << 5, // sixth standard suit
+  Rainbow = 1 << 6,
+  Black = 1 << 7,
 }
 
 export const enum Variant {
   NoVariant = SuitEnum.Red | SuitEnum.Yellow | SuitEnum.Blue | SuitEnum.White | SuitEnum.Green,
+  SixSuits = NoVariant | SuitEnum.Teal,
   Rainbows = NoVariant | SuitEnum.Rainbow,
   Blacks = NoVariant | SuitEnum.Black,
   RainbowsAndBlacks = NoVariant | SuitEnum.Rainbow | SuitEnum.Black,
@@ -68,6 +70,15 @@ export const suitProperties: Record<SuitEnum, SuitProperties> = {
     string: 'Green',
     stringHint: "Green",
     colourHint: SuitEnum.Green,
+    positiveColourHintModifier: null,
+    negativeColourHintModifier: null,
+    positiveNumberHintModifier: null,
+    negativeNumberHintModifier: null,
+  },
+  [SuitEnum.Teal]: {
+    string: 'Teal',
+    stringHint: "Teal",
+    colourHint: SuitEnum.Teal,
     positiveColourHintModifier: null,
     negativeColourHintModifier: null,
     positiveNumberHintModifier: null,
