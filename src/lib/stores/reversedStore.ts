@@ -1,5 +1,7 @@
 import { createPersistentStore } from "./persistentStore";
 
-const reversedStore =  createPersistentStore("reversedStore", false);
+// Default true so newly drawn cards appear on the LEFT (H-group convention,
+// see plan.md). Users can toggle this in the config modal.
+const reversedStore =  createPersistentStore("reversedStore", true);
 
 export { reversedStore };

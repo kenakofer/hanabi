@@ -117,6 +117,23 @@
             contextOnCardsStore.set(id, cardContext);
           });
           break;
+        case "ManualEliminate": // undo a manual cross-off
+          {
+            let cardInformation = informationOnCardsStore.get(actionToUndo.id);
+            if (actionToUndo.trait === "colour") {
+              cardInformation = {
+                ...cardInformation,
+                colourInformation: actionToUndo.previousInformation,
+              };
+            } else {
+              cardInformation = {
+                ...cardInformation,
+                numberInformation: actionToUndo.previousInformation,
+              };
+            }
+            informationOnCardsStore.set(actionToUndo.id, cardInformation);
+          }
+          break;
         case "PlayDiscard": // undo a play/discard
           let ids = get(cardsInHandStore);
 

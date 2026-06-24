@@ -8,8 +8,12 @@
   import { cardsSelectedStore } from "../stores/cardsSelectedStore";
   import { onMount, onDestroy } from "svelte";
   import { contextOnCardsStore } from "../stores/contextOnCardsStore";
+  import { informationOnCardsStore } from "../stores/informationOnCardsStore";
+  import { actionStore } from "../stores/actionStore";
+  import gameOrReviewStore from "../stores/gameOrReviewStore";
+  import type { ManualEliminate } from "../models/gameActions";
 
-  
+
   import Number from "./Number.svelte";
   import Colour from "./Colour.svelte";
 
@@ -29,17 +33,17 @@
   $: localMode = $activeMenuCard === id ? "menu" : "card";
   $: isMenuActive = $activeMenuCard !== null;
   $: numberOfCards = $gameConfigStore.numberOfCards;
-  $: borderColour = selected
-    ? "var(--border-selected)"
-    : isCritical
-      ? "var(--border-critical)"
-      : isHinted
-        ? "var(--border-hinted)"
-        : isFinessed
-          ? "var(--border-finessed)"
-          : isChopMoved
-            ? "var(--border-chopmoved)"
-            : "var(--border-default)";
+  // Selected is shown via a white glow (see CSS); the border conveys
+  // critical / hinted / finessed / chop-moved / default.
+  $: borderColour = isCritical
+    ? "var(--border-critical)"
+    : isHinted
+      ? "var(--border-hinted)"
+      : isFinessed
+        ? "var(--border-finessed)"
+        : isChopMoved
+          ? "var(--border-chopmoved)"
+          : "var(--border-default)";
 
   let knownColour: string | null = null;
   $: {
@@ -73,6 +77,10 @@
       case "green":
         numberIconStyles.strokeColour = "white";
         numberIconStyles.backgroundColour = "green";
+        break;
+      case "teal":
+        numberIconStyles.strokeColour = "white";
+        numberIconStyles.backgroundColour = "teal";
         break;
       case "black":
         numberIconStyles.strokeColour = "white";
@@ -131,6 +139,66 @@
 
   function isSingleFlag(bitflag: SuitEnum | NumberEnum): boolean {
     return (bitflag & (bitflag - 1)) == 0;
+  }
+
+  // Cross off a single possibility from this card. Records a ManualEliminate
+  // action so it can be undone like a hint. Only allowed during live play
+  // (not while reviewing) and never on the last remaining possibility.
+  function eliminateColour(suit: SuitEnum): void {
+    if (!$gameOrReviewStore) return; // disabled in review mode
+    const info = informationOnCardsStore.get(id);
+    const previous = info.colourInformation;
+    if ((previous & suit) === 0) return; // already crossed off
+    if (isSingleFlag(previous)) return; // don't remove the last option
+    const next = (previous & ~suit) as SuitEnum;
+    informationOnCardsStore.set(id, { ...info, colourInformation: next });
+    const action: ManualEliminate = {
+      actionType: "ManualEliminate",
+      id,
+      trait: "colour",
+      hintString: suitProperties[suit].string,
+      previousInformation: previous,
+      newInformation: next,
+    };
+    actionStore.push(action);
+  }
+
+  function eliminateNumber(num: NumberEnum): void {
+    if (!$gameOrReviewStore) return; // disabled in review mode
+    const info = informationOnCardsStore.get(id);
+    const previous = info.numberInformation;
+    if ((previous & num) === 0) return; // already crossed off
+    if (isSingleFlag(previous)) return; // don't remove the last option
+    const next = (previous & ~num) as NumberEnum;
+    informationOnCardsStore.set(id, { ...info, numberInformation: next });
+    const action: ManualEliminate = {
+      actionType: "ManualEliminate",
+      id,
+      trait: "number",
+      hintString: String(Math.log2(num) + 1),
+      previousInformation: previous,
+      newInformation: next,
+    };
+    actionStore.push(action);
+  }
+
+  // Tapping a trait icon crosses it off, unless it's the last remaining
+  // possibility (or we're in review) — in which case the tap falls through to
+  // toggling the card's selected state, like tapping the card itself.
+  function handleNumberTap(num: NumberEnum): void {
+    if (!$gameOrReviewStore || isSingleFlag(numberInformation)) {
+      if ($activeMenuCard === null) onSelect(id);
+      return;
+    }
+    eliminateNumber(num);
+  }
+
+  function handleColourTap(suit: SuitEnum): void {
+    if (!$gameOrReviewStore || isSingleFlag(colourInformation)) {
+      if ($activeMenuCard === null) onSelect(id);
+      return;
+    }
+    eliminateColour(suit);
   }
 
   function toggleCritical(): void {
@@ -230,26 +298,50 @@
     <p class="card-id">{note !== "" ? note : "Card " + (id + 1)}</p>
     <div class="number-icons">
       {#each getNumbers(numberInformation) as numberEnum}
-        <Number
-          backgroundColour={numberIconStyles.backgroundColour}
-          strokeColour={knownNumberInformation & numberEnum &&
-          !isSingleFlag(numberInformation)
-            ? "var(--border-hinted)"
-            : numberIconStyles.strokeColour}
-          numberEnum={numberEnum}
-        />
+        <button
+          type="button"
+          class="trait-icon"
+          title="Cross off {Math.log2(numberEnum) + 1}"
+          on:click|stopPropagation={() => handleNumberTap(numberEnum)}
+          on:mousedown|stopPropagation
+          on:mouseup|stopPropagation
+          on:touchstart|stopPropagation
+          on:touchend|stopPropagation
+          on:contextmenu|preventDefault|stopPropagation
+        >
+          <Number
+            backgroundColour={numberIconStyles.backgroundColour}
+            strokeColour={knownNumberInformation & numberEnum &&
+            !isSingleFlag(numberInformation)
+              ? "var(--border-hinted)"
+              : numberIconStyles.strokeColour}
+            numberEnum={numberEnum}
+          />
+        </button>
       {/each}
     </div>
     <div class="colour-icons">
       {#each getSuits(colourInformation) as suitEnum}
-        <Colour
-          strokeColour={(knownColourInformation & suitEnum) &&
-          !isSingleFlag(colourInformation)
-            ? "var(--border-hinted)"
-            : numberIconStyles.strokeColour}
-          colour={suitEnum}
-          isOnlyRainbow={knownColour === "rainbow"}
-        />
+        <button
+          type="button"
+          class="trait-icon"
+          title="Cross off {suitProperties[suitEnum].string}"
+          on:click|stopPropagation={() => handleColourTap(suitEnum)}
+          on:mousedown|stopPropagation
+          on:mouseup|stopPropagation
+          on:touchstart|stopPropagation
+          on:touchend|stopPropagation
+          on:contextmenu|preventDefault|stopPropagation
+        >
+          <Colour
+            strokeColour={(knownColourInformation & suitEnum) &&
+            !isSingleFlag(colourInformation)
+              ? "var(--border-hinted)"
+              : numberIconStyles.strokeColour}
+            colour={suitEnum}
+            isOnlyRainbow={knownColour === "rainbow"}
+          />
+        </button>
       {/each}
     </div>
   {:else}
@@ -304,8 +396,14 @@
     overflow: hidden;
   }
 
+  .card {
+    transition: box-shadow 0.12s ease;
+  }
+
+  /* Selected cards get a white glow instead of a blue border. */
   .selected {
     filter: brightness(1.2);
+    box-shadow: 0 0 12px 4px rgba(255, 255, 255, 0.9);
   }
 
   .card-id {
@@ -364,6 +462,11 @@
     color: white;
   }
 
+  .teal {
+    background-color: teal;
+    color: white;
+  }
+
   .white {
     background-color: whitesmoke;
     color: black;
@@ -397,7 +500,7 @@
   }
 
   .card .number-icons {
-    height: 45%;
+    height: 32%;
     display: flex;
     flex-wrap: nowrap; /* Prevent wrapping for number icons */
     align-items: center;
@@ -405,17 +508,53 @@
     width: 100%; /* adding this fixed the number icons but not the colour icons */
   }
 
+  /* Number glyphs are capped in height so they don't dwarf the colour pips,
+     but each also gets an equal share of the row width and shrinks to fit it
+     when there are several numbers. The glyph scales to whichever constraint
+     (height or its width share) is smaller, keeping them from overflowing. */
+  .card .number-icons > .trait-icon {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+  }
+  .card .number-icons > .trait-icon :global(svg) {
+    height: auto;
+    width: auto;
+    max-height: 100%;
+    max-width: 100%;
+  }
+
   .card .colour-icons {
-    display: grid; /* Use grid layout */
-    grid-template-columns: repeat(
-      auto-fit,
-      minmax(35px, 1fr)
-    ); /* Create as many columns as can fit, but not less than 30px */
-    grid-auto-flow: row dense;
-    grid-gap: 2px; /* Set gap between icons */
-    justify-items: center; /* Center items horizontally */
-    height: 40%; /* Set the height */
+    display: flex; /* single row, no wrapping */
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    height: 46%;
     padding-top: 5px;
+  }
+
+  /* Each colour pip takes an equal share of the row width and shrinks to fit
+     when there are several. A pip is capped at ~52px (≈30% larger than the old
+     35px) so a lone pip doesn't balloon to the full row height, while six pips
+     shrink to share the width and stay on one line. */
+  .card .colour-icons > .trait-icon {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 52px;
+    height: 100%;
+    max-height: 52px;
+    margin: 0 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card .colour-icons > .trait-icon :global(svg) {
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
   }
 
   .number-icons > *,
@@ -428,8 +567,29 @@
     max-width: 100%;
     max-height: 100%;
     transform: rotate(1);
-    pointer-events: none;
     will-change: transform;
+  }
+
+  /* Tappable trait icon: transparent button wrapper around a Number/Colour icon.
+     Tapping it crosses off that possibility. */
+  .trait-icon {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .trait-icon:hover {
+    filter: brightness(1.15);
+    transform: scale(1.08);
+  }
+  .trait-icon:active {
+    transform: scale(0.92);
+    opacity: 0.6;
+  }
+  /* the inner svg icon shouldn't swallow the tap */
+  .trait-icon > :global(*) {
+    pointer-events: none;
   }
 
   @media (max-width: 600px) {
