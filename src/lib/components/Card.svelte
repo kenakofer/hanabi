@@ -535,22 +535,25 @@
     padding-top: 5px;
   }
 
-  /* Each colour pip takes an equal share of the row and shrinks to fit when
-     there are several, but is capped so a lone pip doesn't balloon. The cap is
-     ~30% larger than the old 35px grid cell. */
+  /* Each colour pip takes an equal share of the row width and shrinks to fit
+     when there are several. A pip is capped at ~52px (≈30% larger than the old
+     35px) so a lone pip doesn't balloon to the full row height, while six pips
+     shrink to share the width and stay on one line. */
   .card .colour-icons > .trait-icon {
     flex: 1 1 0;
     min-width: 0;
-    max-width: 46px;
+    max-width: 52px;
     height: 100%;
+    max-height: 52px;
     margin: 0 1px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
   .card .colour-icons > .trait-icon :global(svg) {
-    width: 100%;
-    height: auto;
+    width: auto;
+    height: 100%;
+    max-width: 100%;
     max-height: 100%;
   }
 
