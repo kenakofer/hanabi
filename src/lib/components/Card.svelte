@@ -78,6 +78,10 @@
         numberIconStyles.strokeColour = "white";
         numberIconStyles.backgroundColour = "green";
         break;
+      case "teal":
+        numberIconStyles.strokeColour = "white";
+        numberIconStyles.backgroundColour = "teal";
+        break;
       case "black":
         numberIconStyles.strokeColour = "white";
         numberIconStyles.backgroundColour = "white";
@@ -431,6 +435,11 @@
     color: white;
   }
 
+  .teal {
+    background-color: teal;
+    color: white;
+  }
+
   .white {
     background-color: whitesmoke;
     color: black;
@@ -464,12 +473,28 @@
   }
 
   .card .number-icons {
-    height: 45%;
+    height: 32%;
     display: flex;
     flex-wrap: nowrap; /* Prevent wrapping for number icons */
     align-items: center;
     justify-content: center;
     width: 100%; /* adding this fixed the number icons but not the colour icons */
+  }
+
+  /* Number glyphs are capped in height so they don't dwarf the colour pips,
+     but each also gets an equal share of the row width and shrinks to fit it
+     when there are several numbers. The glyph scales to whichever constraint
+     (height or its width share) is smaller, keeping them from overflowing. */
+  .card .number-icons > .trait-icon {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+  }
+  .card .number-icons > .trait-icon :global(svg) {
+    height: auto;
+    width: auto;
+    max-height: 100%;
+    max-width: 100%;
   }
 
   .card .colour-icons {
