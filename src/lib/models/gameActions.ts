@@ -3,7 +3,11 @@
 import type { NumberEnum } from "./numberEnums";
 import type { SuitEnum } from "./variantEnums";
 
-export type GameAction = PlayDiscard | NumberHint | ColourHint;
+export type GameAction =
+  | PlayDiscard
+  | NumberHint
+  | ColourHint
+  | ManualEliminate;
 
 export interface PlayDiscard {
   actionType: "PlayDiscard";
@@ -42,4 +46,19 @@ export interface ColourHint {
   newColourInformation: SuitEnum[];
 
   newHinted: boolean[];
+}
+
+// Manually crossing off a single possibility (suit or number) on one card,
+// e.g. when the player infers a card cannot be a particular value.
+export interface ManualEliminate {
+  actionType: "ManualEliminate";
+
+  id: number;
+  trait: "colour" | "number";
+  // human-readable description for toasts, e.g. "Red" or "3"
+  hintString: string;
+
+  // the previous and new possibility bitfields for the affected trait
+  previousInformation: number;
+  newInformation: number;
 }

@@ -8,8 +8,12 @@
   import { cardsSelectedStore } from "../stores/cardsSelectedStore";
   import { onMount, onDestroy } from "svelte";
   import { contextOnCardsStore } from "../stores/contextOnCardsStore";
+  import { informationOnCardsStore } from "../stores/informationOnCardsStore";
+  import { actionStore } from "../stores/actionStore";
+  import gameOrReviewStore from "../stores/gameOrReviewStore";
+  import type { ManualEliminate } from "../models/gameActions";
 
-  
+
   import Number from "./Number.svelte";
   import Colour from "./Colour.svelte";
 
@@ -133,6 +137,47 @@
     return (bitflag & (bitflag - 1)) == 0;
   }
 
+  // Cross off a single possibility from this card. Records a ManualEliminate
+  // action so it can be undone like a hint. Only allowed during live play
+  // (not while reviewing) and never on the last remaining possibility.
+  function eliminateColour(suit: SuitEnum): void {
+    if (!$gameOrReviewStore) return; // disabled in review mode
+    const info = informationOnCardsStore.get(id);
+    const previous = info.colourInformation;
+    if ((previous & suit) === 0) return; // already crossed off
+    if (isSingleFlag(previous)) return; // don't remove the last option
+    const next = (previous & ~suit) as SuitEnum;
+    informationOnCardsStore.set(id, { ...info, colourInformation: next });
+    const action: ManualEliminate = {
+      actionType: "ManualEliminate",
+      id,
+      trait: "colour",
+      hintString: suitProperties[suit].string,
+      previousInformation: previous,
+      newInformation: next,
+    };
+    actionStore.push(action);
+  }
+
+  function eliminateNumber(num: NumberEnum): void {
+    if (!$gameOrReviewStore) return; // disabled in review mode
+    const info = informationOnCardsStore.get(id);
+    const previous = info.numberInformation;
+    if ((previous & num) === 0) return; // already crossed off
+    if (isSingleFlag(previous)) return; // don't remove the last option
+    const next = (previous & ~num) as NumberEnum;
+    informationOnCardsStore.set(id, { ...info, numberInformation: next });
+    const action: ManualEliminate = {
+      actionType: "ManualEliminate",
+      id,
+      trait: "number",
+      hintString: String(Math.log2(num) + 1),
+      previousInformation: previous,
+      newInformation: next,
+    };
+    actionStore.push(action);
+  }
+
   function toggleCritical(): void {
     const oldContext = contextOnCardsStore.get(id);
     contextOnCardsStore.set(id, { ...oldContext, isCritical: !isCritical });
@@ -230,26 +275,48 @@
     <p class="card-id">{note !== "" ? note : "Card " + (id + 1)}</p>
     <div class="number-icons">
       {#each getNumbers(numberInformation) as numberEnum}
-        <Number
-          backgroundColour={numberIconStyles.backgroundColour}
-          strokeColour={knownNumberInformation & numberEnum &&
-          !isSingleFlag(numberInformation)
-            ? "var(--border-hinted)"
-            : numberIconStyles.strokeColour}
-          numberEnum={numberEnum}
-        />
+        <button
+          type="button"
+          class="trait-icon"
+          title="Cross off {Math.log2(numberEnum) + 1}"
+          disabled={!$gameOrReviewStore || isSingleFlag(numberInformation)}
+          on:click|stopPropagation={() => eliminateNumber(numberEnum)}
+          on:mousedown|stopPropagation
+          on:touchstart|stopPropagation
+          on:contextmenu|preventDefault|stopPropagation
+        >
+          <Number
+            backgroundColour={numberIconStyles.backgroundColour}
+            strokeColour={knownNumberInformation & numberEnum &&
+            !isSingleFlag(numberInformation)
+              ? "var(--border-hinted)"
+              : numberIconStyles.strokeColour}
+            numberEnum={numberEnum}
+          />
+        </button>
       {/each}
     </div>
     <div class="colour-icons">
       {#each getSuits(colourInformation) as suitEnum}
-        <Colour
-          strokeColour={(knownColourInformation & suitEnum) &&
-          !isSingleFlag(colourInformation)
-            ? "var(--border-hinted)"
-            : numberIconStyles.strokeColour}
-          colour={suitEnum}
-          isOnlyRainbow={knownColour === "rainbow"}
-        />
+        <button
+          type="button"
+          class="trait-icon"
+          title="Cross off {suitProperties[suitEnum].string}"
+          disabled={!$gameOrReviewStore || isSingleFlag(colourInformation)}
+          on:click|stopPropagation={() => eliminateColour(suitEnum)}
+          on:mousedown|stopPropagation
+          on:touchstart|stopPropagation
+          on:contextmenu|preventDefault|stopPropagation
+        >
+          <Colour
+            strokeColour={(knownColourInformation & suitEnum) &&
+            !isSingleFlag(colourInformation)
+              ? "var(--border-hinted)"
+              : numberIconStyles.strokeColour}
+            colour={suitEnum}
+            isOnlyRainbow={knownColour === "rainbow"}
+          />
+        </button>
       {/each}
     </div>
   {:else}
@@ -428,8 +495,32 @@
     max-width: 100%;
     max-height: 100%;
     transform: rotate(1);
-    pointer-events: none;
     will-change: transform;
+  }
+
+  /* Tappable trait icon: transparent button wrapper around a Number/Colour icon.
+     Tapping it crosses off that possibility. */
+  .trait-icon {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .trait-icon:not(:disabled):hover {
+    filter: brightness(1.15);
+    transform: scale(1.08);
+  }
+  .trait-icon:not(:disabled):active {
+    transform: scale(0.92);
+    opacity: 0.6;
+  }
+  .trait-icon:disabled {
+    cursor: default;
+  }
+  /* the inner svg icon shouldn't swallow the tap */
+  .trait-icon > :global(*) {
+    pointer-events: none;
   }
 
   @media (max-width: 600px) {

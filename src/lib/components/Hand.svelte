@@ -91,6 +91,8 @@
   function describeAction(action: GameAction): string {
     if (action.actionType == "PlayDiscard") {
       return `PlayDiscard card ${action.id}`;
+    } else if (action.actionType == "ManualEliminate") {
+      return `not ${action.hintString}`;
     } else {
       let len = action.affectedIds.length;
       let len_string =
@@ -215,6 +217,21 @@
             cardInformations = newCardColourInformations;
             cardsHinted = newCardsColourHinted;
             break;
+          case "ManualEliminate":
+            addToast(actionToProgress, "Crossed off");
+            {
+              const idx = cards.findIndex((id) => id === actionToProgress.id);
+              if (idx !== -1) {
+                cardInformations = cardInformations.map((cardInfo, ind) =>
+                  ind !== idx
+                    ? cardInfo
+                    : actionToProgress.trait === "colour"
+                      ? { ...cardInfo, colourInformation: actionToProgress.newInformation }
+                      : { ...cardInfo, numberInformation: actionToProgress.newInformation }
+                );
+              }
+            }
+            break;
         }
         // update `localReviewTurn` to represent that we have completed the update
         localReviewTurn = get(reviewTurnStore);
@@ -298,6 +315,21 @@
 
             cardInformations = previousCardColourInformations;
             cardsHinted = previousCardsColourHinted;
+            break;
+          case "ManualEliminate":
+            addToast(actionToUndo, "Undoing cross-off of");
+            {
+              const idx = cards.findIndex((id) => id === actionToUndo.id);
+              if (idx !== -1) {
+                cardInformations = cardInformations.map((cardInfo, ind) =>
+                  ind !== idx
+                    ? cardInfo
+                    : actionToUndo.trait === "colour"
+                      ? { ...cardInfo, colourInformation: actionToUndo.previousInformation }
+                      : { ...cardInfo, numberInformation: actionToUndo.previousInformation }
+                );
+              }
+            }
             break;
         }
         // update `localReviewTurn` to represent that we have completed the update
