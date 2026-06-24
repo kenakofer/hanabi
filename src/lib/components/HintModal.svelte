@@ -48,52 +48,6 @@
     );
   } // this should return matching arrays of all suit Enums with a stringHint property (i.e. all hintable suits)
 
-  function isColourHintValid(colourHint: SuitEnum): boolean {
-    const selectedCardIds = Array.from($cardsSelectedStore);
-    const isValid = $cardsInHandStore.every((card) => {
-      const cardInformation = informationOnCardsStore.get(card);
-      if (selectedCardIds.includes(card)) {
-        const hintModifier: SuitEnum = getPositiveColourHintModifier(
-          cardInformation.colourInformation
-        );
-        return (
-          (cardInformation.colourInformation & (colourHint | hintModifier)) > 0
-        ); // the hint is applicable if one of the card's suits is possible (1) and that hint also has a 1
-      } else {
-        const hintModifier: SuitEnum = getNegativeColourHintModifier(
-          cardInformation.colourInformation
-        );
-        return (
-          (cardInformation.colourInformation & ~(colourHint | hintModifier)) > 0
-        ); // check that it doesnt leave any hints without any colours
-      }
-    });
-    return isValid;
-  }
-
-  function isNumberHintValid(numberHint: NumberEnum): boolean {
-    const selectedCardIds = Array.from($cardsSelectedStore);
-    const isValid = $cardsInHandStore.every((card) => {
-      const cardInformation = informationOnCardsStore.get(card);
-      if (selectedCardIds.includes(card)) {
-        const hintModifier: NumberEnum = getPositiveNumberHintModifier(
-          cardInformation.numberInformation
-        );
-        return (
-          (cardInformation.numberInformation & (numberHint | hintModifier)) > 0
-        ); // the hint is applicable if one of the card's numbers is possible (1) and that hint also has a 1
-      } else {
-        const hintModifier: NumberEnum = getNegativeNumberHintModifier(
-          cardInformation.numberInformation
-        );
-        return (
-          (cardInformation.numberInformation & ~(numberHint | hintModifier)) > 0
-        ); // check that it doesnt leave any hints without any numbers
-      }
-    });
-    return isValid;
-  }
-
   function getPositiveColourHintModifier(
     colourInformation: SuitEnum
   ): SuitEnum {
@@ -238,7 +192,10 @@
     colourHint: SuitEnum
   ): SuitEnum {
     const hintModifier = getPositiveColourHintModifier(colourInformation);
-    return colourInformation & (colourHint | hintModifier);
+    // Intersect as normal (this preserves modifier suits like rainbow), but
+    // OR the directly-hinted colour back in so a positive hint always wins
+    // over a contradictory manual cross-off and never blanks the card.
+    return (colourInformation & (colourHint | hintModifier)) | colourHint;
   }
 
   function calculateNegativeColourHint(
@@ -336,7 +293,9 @@
     numberHint: NumberEnum
   ): NumberEnum {
     const hintModifier = getPositiveNumberHintModifier(numberInformation);
-    return numberInformation & (numberHint | hintModifier);
+    // OR the hinted number back in so a positive hint always wins over a
+    // contradictory manual cross-off and never blanks the card.
+    return (numberInformation & (numberHint | hintModifier)) | numberHint;
   }
 
   function calculateNegativeNumberHint(
@@ -409,7 +368,6 @@
             )
               ? 'selected'
               : ''}"
-            hidden={!isNumberHintValid(availableNumberHintsEnums[index])}
             on:click={() => selectNumberHint(availableNumberHintsEnums[index])}
             >{availableNumberHintsStrings[index]}</button
           >
@@ -424,7 +382,6 @@
             )
               ? 'selected'
               : ''}"
-            hidden={!isColourHintValid(colour)}
             on:click={() => selectColourHint(colour)}
             >{suitProperties[colour].stringHint}</button
           >
