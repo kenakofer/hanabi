@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
   dotenv.config({ path: envPath });
 
   return {
-    base: mode === 'release' ? '/hanabi-tracker' : mode === 'testing' ? '/hanabi-tracker/test' : '/dev',
+    base: mode === 'release' ? '/hanabi/' : mode === 'testing' ? '/hanabi-tracker/test' : '/dev',
     plugins: [svelte({
       preprocess: sveltePreprocess(),
     })],

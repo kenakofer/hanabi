@@ -1,28 +1,44 @@
-# Hanabi tracker
+# Hanabi hand tracker
 
-Inspired by functionality found over on [hanab.live](https://hanab.live), I decided to embark on making a web app for tracking a single player's hand. I hope to build towards feature parity with hanab.live, with the addition of notes, marking cards as critical, etc, although there will be some functionality I cannot add, since this app will never have the full game state. The hosted app can be found [here](https://jparkhouse.github.io/hanabi-tracker/) assuming all is working well.
+A frontend-only helper for tracking what *you* know about *your own hand* in an
+in-person game of [Hanabi](https://en.wikipedia.org/wiki/Hanabi_%28card_game%29),
+following the [H-group](https://hanabi.github.io/) conventions. It records the
+positive and negative information you get from clues, and lets you mark up cards
+as you deduce more. It never sees the full game state — it only tracks your hand.
+
+Live site: **https://kenakofer.github.io/hanabi/**
+
+This is a fork of [jparkhouse/hanabi-tracker](https://github.com/jparkhouse/hanabi-tracker).
 
 ## Features
 
-Currently, the app features the ability to:
-- choose between 3-5 cards
-- apply hints
-- play or discard cards
-- mark cards as critical (red border), chop moved (white\blue border), or finessed (aqua border)
-    - hinted is automatically marked (orange border)
-- undo actions
+- Choose your hand size and the number of suits (up to 6 standard suits, plus
+  optional Rainbow and Black special suits).
+- Record the clues you receive (colour or number) and the cards they touch;
+  positive and negative information is applied across the hand automatically.
+- **Tap a number or colour on a card to cross that possibility off** as you
+  deduce it. Tapping the last remaining possibility selects the card instead.
+- Play or discard cards; newly drawn cards appear on the left by default.
+- Mark cards as critical (red border), chop-moved, or finessed, and add notes.
+- Clued cards get a gold border; the selected card gets a white glow.
+- Undo any action, including manual cross-offs, and review past turns.
 
-Variants currently supported:
-- No variant (standard 5 suits)
-- Rainbows (a multicolour suit)
-- Black (a colourless suit)
-- Rainbows and Blacks (both the multicolour and no colour suits).
+## Development
 
-## Technical
+Built with Vite + Svelte + TypeScript.
 
-The app is built by me, Jake, and I am very much an amatuer coder. It uses Vite + Svelte, and is my first foray into this tech stack, my first full typescript project, and even my first web development project. If for whatever reason you want to help out, I'm likely happy to collaborate - please reach out to me on discord at morefriendsthanmost. As a Product Manager by day, I'm sure I can find you some requirements to work on :D
+```bash
+npm install
+npm run dev      # local dev server (served under /dev/)
+npm run build    # production build
+npm run check    # type-check
+npm run test     # unit tests
+```
 
-## ToDo
+Pushing to `main` builds the site and deploys it to GitHub Pages via the
+workflow in `.github/workflows/deploy-pages.yml`.
 
-Next on the roadmap:
-- Review feature
+## Licence
+
+GPL-3.0 (inherited from the upstream project and the hanab.live card art it
+adapts). See [LICENSE](./LICENSE).
