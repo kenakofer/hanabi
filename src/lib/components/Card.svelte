@@ -33,17 +33,16 @@
   $: localMode = $activeMenuCard === id ? "menu" : "card";
   $: isMenuActive = $activeMenuCard !== null;
   $: numberOfCards = $gameConfigStore.numberOfCards;
-  $: borderColour = selected
-    ? "var(--border-selected)"
-    : isCritical
-      ? "var(--border-critical)"
-      : isHinted
-        ? "var(--border-hinted)"
-        : isFinessed
-          ? "var(--border-finessed)"
-          : isChopMoved
-            ? "var(--border-chopmoved)"
-            : "var(--border-default)";
+  // Selected and hinted are now shown via a drop shadow and a raised position
+  // (see CSS), so they no longer drive the border colour. The border still
+  // conveys critical / finessed / chop-moved / default.
+  $: borderColour = isCritical
+    ? "var(--border-critical)"
+    : isFinessed
+      ? "var(--border-finessed)"
+      : isChopMoved
+        ? "var(--border-chopmoved)"
+        : "var(--border-default)";
 
   let knownColour: string | null = null;
   $: {
@@ -182,6 +181,25 @@
     actionStore.push(action);
   }
 
+  // Tapping a trait icon crosses it off, unless it's the last remaining
+  // possibility (or we're in review) — in which case the tap falls through to
+  // toggling the card's selected state, like tapping the card itself.
+  function handleNumberTap(num: NumberEnum): void {
+    if (!$gameOrReviewStore || isSingleFlag(numberInformation)) {
+      if ($activeMenuCard === null) onSelect(id);
+      return;
+    }
+    eliminateNumber(num);
+  }
+
+  function handleColourTap(suit: SuitEnum): void {
+    if (!$gameOrReviewStore || isSingleFlag(colourInformation)) {
+      if ($activeMenuCard === null) onSelect(id);
+      return;
+    }
+    eliminateColour(suit);
+  }
+
   function toggleCritical(): void {
     const oldContext = contextOnCardsStore.get(id);
     contextOnCardsStore.set(id, { ...oldContext, isCritical: !isCritical });
@@ -264,7 +282,7 @@
 <div
   class="card no-{numberOfCards} {knownColour != null
     ? knownColour
-    : ''} {selected ? 'selected' : ''}"
+    : ''} {selected ? 'selected' : ''} {isHinted ? 'hinted' : ''}"
   tabindex="0"
   role="button"
   on:contextmenu|preventDefault={handleRightClick}
@@ -283,10 +301,11 @@
           type="button"
           class="trait-icon"
           title="Cross off {Math.log2(numberEnum) + 1}"
-          disabled={!$gameOrReviewStore || isSingleFlag(numberInformation)}
-          on:click|stopPropagation={() => eliminateNumber(numberEnum)}
+          on:click|stopPropagation={() => handleNumberTap(numberEnum)}
           on:mousedown|stopPropagation
+          on:mouseup|stopPropagation
           on:touchstart|stopPropagation
+          on:touchend|stopPropagation
           on:contextmenu|preventDefault|stopPropagation
         >
           <Number
@@ -306,10 +325,11 @@
           type="button"
           class="trait-icon"
           title="Cross off {suitProperties[suitEnum].string}"
-          disabled={!$gameOrReviewStore || isSingleFlag(colourInformation)}
-          on:click|stopPropagation={() => eliminateColour(suitEnum)}
+          on:click|stopPropagation={() => handleColourTap(suitEnum)}
           on:mousedown|stopPropagation
+          on:mouseup|stopPropagation
           on:touchstart|stopPropagation
+          on:touchend|stopPropagation
           on:contextmenu|preventDefault|stopPropagation
         >
           <Colour
@@ -375,8 +395,25 @@
     overflow: hidden;
   }
 
+  .card {
+    transition:
+      transform 0.12s ease,
+      box-shadow 0.12s ease;
+  }
+
+  /* Clued cards sit raised out of the hand instead of getting a yellow border. */
+  .hinted {
+    transform: translateY(-20px);
+  }
+
+  /* Selected cards get a white glow instead of a blue border. */
   .selected {
     filter: brightness(1.2);
+    box-shadow: 0 0 12px 4px rgba(255, 255, 255, 0.9);
+  }
+  /* Keep the raise when a clued card is also selected. */
+  .hinted.selected {
+    transform: translateY(-20px);
   }
 
   .card-id {
@@ -501,12 +538,12 @@
     display: grid; /* Use grid layout */
     grid-template-columns: repeat(
       auto-fit,
-      minmax(35px, 1fr)
-    ); /* Create as many columns as can fit, but not less than 30px */
+      minmax(46px, 1fr)
+    ); /* Create as many columns as can fit, but not less than 46px */
     grid-auto-flow: row dense;
     grid-gap: 2px; /* Set gap between icons */
     justify-items: center; /* Center items horizontally */
-    height: 40%; /* Set the height */
+    height: 46%; /* Set the height */
     padding-top: 5px;
   }
 
@@ -532,16 +569,13 @@
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
-  .trait-icon:not(:disabled):hover {
+  .trait-icon:hover {
     filter: brightness(1.15);
     transform: scale(1.08);
   }
-  .trait-icon:not(:disabled):active {
+  .trait-icon:active {
     transform: scale(0.92);
     opacity: 0.6;
-  }
-  .trait-icon:disabled {
-    cursor: default;
   }
   /* the inner svg icon shouldn't swallow the tap */
   .trait-icon > :global(*) {
