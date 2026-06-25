@@ -182,10 +182,11 @@
   }
 
   // Tapping a trait icon toggles a black X over it (negative info the player
-  // inferred). In review mode the tap falls through to toggling the card's
-  // selected state, like tapping the card itself.
+  // inferred). When only one possibility remains (or we're in review), the tap
+  // falls through to toggling the card's selected state, like tapping the card
+  // itself.
   function handleNumberTap(num: NumberEnum): void {
-    if (!$gameOrReviewStore) {
+    if (!$gameOrReviewStore || isSingleFlag(numberInformation)) {
       if ($activeMenuCard === null) onSelect(id);
       return;
     }
@@ -193,7 +194,7 @@
   }
 
   function handleColourTap(suit: SuitEnum): void {
-    if (!$gameOrReviewStore) {
+    if (!$gameOrReviewStore || isSingleFlag(colourInformation)) {
       if ($activeMenuCard === null) onSelect(id);
       return;
     }
