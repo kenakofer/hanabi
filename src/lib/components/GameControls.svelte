@@ -17,6 +17,30 @@
   import type { WebAction } from "../models/webAction";
   import reviewTurnStore from "../stores/reviewTurnStore";
   import { nextCardId } from "../stores/cardIDCounterStore";
+  import { version } from "../../../package.json";
+
+  const repoUrl = "https://github.com/kenakofer/hanabi";
+
+  let versionLabel: string;
+  let versionHref: string;
+  $: {
+    // BASE_URL is normalised by Vite (e.g. "/hanabi/", "/dev/").
+    const base = import.meta.env.BASE_URL.replace(/\/+$/, "");
+    switch (base) {
+      case "/hanabi":
+        versionLabel = `v${version}`;
+        versionHref = `${repoUrl}/tree/v${version}`;
+        break;
+      case "/dev":
+        versionLabel = `dev ${version}`;
+        versionHref = repoUrl;
+        break;
+      default:
+        versionLabel = `v${version}`;
+        versionHref = repoUrl;
+        break;
+    }
+  }
 
   let wakeLock: WakeLockSentinel | null = null;
   let wakeLockSupported = "wakeLock" in navigator;
@@ -229,6 +253,9 @@
   </div>
 
   <div class="secondary-actions">
+    <a class="version-link" href={versionHref} target="_blank" rel="noopener">
+      {versionLabel}
+    </a>
     {#if fullscreenSupported}
       <button
         class="fullscreen-btn"
@@ -272,6 +299,13 @@
   }
   .configure {
     align-self: flex-start; /* Aligns the configure button at the start */
+  }
+
+  .version-link {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    text-decoration: underline;
+    opacity: 0.8;
   }
 
   .hint-panel {
