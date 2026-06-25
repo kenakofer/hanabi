@@ -294,6 +294,9 @@
   on:touchcancel={handleInteractionEnd}
   style="border-color: {borderColour};"
 >
+  {#if selected}
+    <span class="select-arrow" aria-hidden="true">⬇</span>
+  {/if}
   {#if $activeMenuCard !== id}
     <p class="card-id">{note !== "" ? note : "Card " + (id + 1)}</p>
     <div class="number-icons">
@@ -388,6 +391,7 @@
 
 <style>
   .card {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center; /* Align children vertically in the center */
@@ -407,14 +411,24 @@
     overflow: hidden;
   }
 
-  .card {
-    transition: box-shadow 0.12s ease;
-  }
-
-  /* Selected cards get a white glow instead of a blue border. */
-  .selected {
-    filter: brightness(1.2);
-    box-shadow: 0 0 12px 4px rgba(255, 255, 255, 0.9);
+  /* Selection is indicated by a large yellow, black-outlined down arrow in the
+     upper portion of the card. */
+  .select-arrow {
+    position: absolute;
+    top: 2%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    pointer-events: none;
+    line-height: 1;
+    font-size: 4rem;
+    color: gold;
+    text-shadow:
+      -2px -2px 0 #000,
+      2px -2px 0 #000,
+      -2px 2px 0 #000,
+      2px 2px 0 #000,
+      0 0 3px #000;
   }
 
   .card-id {
