@@ -411,13 +411,15 @@
     overflow: hidden;
   }
 
-  /* Selection is indicated by a large yellow, black-outlined down arrow in the
-     upper portion of the card. */
+  /* Selection is indicated by a large yellow, black-outlined down arrow,
+     stretched 3x wide and 2x tall and overlaid on the upper portion of the
+     card so it covers the label and part of the numbers. */
   .select-arrow {
     position: absolute;
-    top: 2%;
+    top: 4%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) scale(3, 2);
+    transform-origin: top center;
     z-index: 2;
     pointer-events: none;
     line-height: 1;
