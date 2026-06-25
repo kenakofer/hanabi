@@ -408,7 +408,7 @@
     flex: 1;
     height: 70vh;
     min-height: 150px;
-    overflow: hidden;
+    overflow: visible;
   }
 
   /* Selection is indicated by a large yellow, black-outlined down arrow,
@@ -416,7 +416,7 @@
      card so it covers the label and part of the numbers. */
   .select-arrow {
     position: absolute;
-    top: 4%;
+    top: -28px; /* poke up over the top edge of the card */
     left: 50%;
     transform: translateX(-50%) scale(3, 2);
     transform-origin: top center;
