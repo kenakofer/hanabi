@@ -16,11 +16,14 @@ This is a fork of [jparkhouse/hanabi-tracker](https://github.com/jparkhouse/hana
   optional Rainbow and Black special suits).
 - Record the clues you receive (colour or number) and the cards they touch;
   positive and negative information is applied across the hand automatically.
-- **Tap a number or colour on a card to cross that possibility off** as you
-  deduce it. Tapping the last remaining possibility selects the card instead.
+- **Tap a number or colour on a card to toggle a black X over it** as you
+  deduce it's unlikely. This is your own annotation — it doesn't remove the
+  possibility (only negative information from clues does that). Tapping the last
+  remaining possibility selects the card instead of marking it.
 - Play or discard cards; newly drawn cards appear on the left by default.
 - Mark cards as critical (red border), chop-moved, or finessed, and add notes.
-- Clued cards get a gold border; the selected card gets a white glow.
+- Clued cards get a gold border; the selected card is marked with a large
+  yellow arrow.
 - Undo any action, including manual cross-offs, and review past turns.
 
 ## Development
@@ -29,14 +32,20 @@ Built with Vite + Svelte + TypeScript.
 
 ```bash
 npm install
-npm run dev      # local dev server (served under /dev/)
-npm run build    # production build
-npm run check    # type-check
-npm run test     # unit tests
+npm run dev                    # local dev server (base path /dev/)
+npm run build                  # production build (base path /dev/)
+npm run build -- --mode release  # build for GitHub Pages (base path /hanabi/)
+npm run check                  # type-check
+npm run test                   # unit tests (vitest)
 ```
 
-Pushing to `main` builds the site and deploys it to GitHub Pages via the
-workflow in `.github/workflows/deploy-pages.yml`.
+The Vite `base` path depends on the `--mode`: `release` → `/hanabi/`,
+`testing` → `/hanabi-tracker/test`, anything else (incl. `dev`) → `/dev`. The
+app reads this `BASE_URL` at runtime to pick the version label and to namespace
+its `localStorage` keys, so different modes keep separate saved state.
+
+Pushing to `main` runs `npm run build -- --mode release` and deploys to GitHub
+Pages via `.github/workflows/deploy-pages.yml`.
 
 ## Licence
 
