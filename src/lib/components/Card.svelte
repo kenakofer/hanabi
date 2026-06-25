@@ -416,7 +416,7 @@
      card so it covers the label and part of the numbers. */
   .select-arrow {
     position: absolute;
-    top: -28px; /* poke up over the top edge of the card */
+    top: -40px; /* poke up over the top edge of the card */
     left: 50%;
     transform: translateX(-50%) scale(3, 2);
     transform-origin: top center;
