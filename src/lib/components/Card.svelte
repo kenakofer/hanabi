@@ -367,6 +367,9 @@
         type="text"
         bind:value={note}
         placeholder="Its a..."
+        on:keydown={(e) => {
+          if (e.key === "Enter") toggleMode();
+        }}
       />
       <button class="btn menu-button close-button" on:click={toggleMode}
         >Close</button
