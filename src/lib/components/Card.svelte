@@ -519,10 +519,9 @@
     width: 100%; /* adding this fixed the number icons but not the colour icons */
   }
 
-  /* Number glyphs are capped in height so they don't dwarf the colour pips,
-     but each also gets an equal share of the row width and shrinks to fit it
-     when there are several numbers. The glyph scales to whichever constraint
-     (height or its width share) is smaller, keeping them from overflowing. */
+  /* Number glyphs share an equal slice of the row width and shrink to fit when
+     several are shown. All five digit SVGs use the same 234×265 viewBox (glyph
+     centred), so they scale identically and render at a uniform height. */
   .card .number-icons > .trait-icon {
     flex: 1 1 0;
     min-width: 0;

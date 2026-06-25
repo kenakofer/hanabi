@@ -9,7 +9,7 @@
   xmlns="http://www.w3.org/2000/svg"
   height="100%"
   fill="none"
-  viewBox="0 0 132 261"
+  viewBox="-50.9 -2.2 234 265"
   role="img"
   preserveAspectRatio="xMidYMid meet"
 >
