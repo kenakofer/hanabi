@@ -164,8 +164,10 @@
                 {
                   numberInformation: allNumbers,
                   knownNumberInformation: 0 as NumberEnum,
+                  crossedNumberInformation: 0 as NumberEnum,
                   colourInformation: get(gameConfigStore).variant,
                   knownColourInformation: 0 as SuitEnum,
+                  crossedColourInformation: 0 as SuitEnum,
                 },
               ];
 
@@ -226,8 +228,8 @@
                   ind !== idx
                     ? cardInfo
                     : actionToProgress.trait === "colour"
-                      ? { ...cardInfo, colourInformation: actionToProgress.newInformation }
-                      : { ...cardInfo, numberInformation: actionToProgress.newInformation }
+                      ? { ...cardInfo, crossedColourInformation: actionToProgress.newInformation }
+                      : { ...cardInfo, crossedNumberInformation: actionToProgress.newInformation }
                 );
               }
             }
@@ -325,8 +327,8 @@
                   ind !== idx
                     ? cardInfo
                     : actionToUndo.trait === "colour"
-                      ? { ...cardInfo, colourInformation: actionToUndo.previousInformation }
-                      : { ...cardInfo, numberInformation: actionToUndo.previousInformation }
+                      ? { ...cardInfo, crossedColourInformation: actionToUndo.previousInformation }
+                      : { ...cardInfo, crossedNumberInformation: actionToUndo.previousInformation }
                 );
               }
             }
@@ -346,8 +348,10 @@
         id={cards[ind]}
         numberInformation={cardInformations[ind].numberInformation}
         knownNumberInformation={cardInformations[ind].knownNumberInformation}
+        crossedNumberInformation={cardInformations[ind].crossedNumberInformation}
         colourInformation={cardInformations[ind].colourInformation}
         knownColourInformation={cardInformations[ind].knownColourInformation}
+        crossedColourInformation={cardInformations[ind].crossedColourInformation}
         note={$contextOnCardsStore.getValueOrDefault(cards[ind]).note}
         selected={$cardsSelectedStore.has(cards[ind])}
         isHinted={cardsHinted[ind]}
@@ -364,9 +368,13 @@
         numberInformation={$informationOnCardsStore.getValueOrDefault(id).numberInformation}
         knownNumberInformation={$informationOnCardsStore.getValueOrDefault(id)
           .knownNumberInformation}
+        crossedNumberInformation={$informationOnCardsStore.getValueOrDefault(id)
+          .crossedNumberInformation}
         colourInformation={$informationOnCardsStore.getValueOrDefault(id).colourInformation}
         knownColourInformation={$informationOnCardsStore.getValueOrDefault(id)
           .knownColourInformation}
+        crossedColourInformation={$informationOnCardsStore.getValueOrDefault(id)
+          .crossedColourInformation}
         note={$contextOnCardsStore.getValueOrDefault(id).note}
         selected={$cardsSelectedStore.has(id)}
         isHinted={$contextOnCardsStore.getValueOrDefault(id).isHinted}

@@ -173,18 +173,18 @@
             contextOnCardsStore.set(id, cardContext);
           });
           break;
-        case "ManualEliminate": // undo a manual cross-off
+        case "ManualEliminate": // undo a manual cross-off (X toggle)
           {
             let cardInformation = informationOnCardsStore.get(actionToUndo.id);
             if (actionToUndo.trait === "colour") {
               cardInformation = {
                 ...cardInformation,
-                colourInformation: actionToUndo.previousInformation,
+                crossedColourInformation: actionToUndo.previousInformation,
               };
             } else {
               cardInformation = {
                 ...cardInformation,
-                numberInformation: actionToUndo.previousInformation,
+                crossedNumberInformation: actionToUndo.previousInformation,
               };
             }
             informationOnCardsStore.set(actionToUndo.id, cardInformation);

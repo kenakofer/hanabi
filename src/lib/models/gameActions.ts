@@ -48,8 +48,9 @@ export interface ColourHint {
   newHinted: boolean[];
 }
 
-// Manually crossing off a single possibility (suit or number) on one card,
-// e.g. when the player infers a card cannot be a particular value.
+// Manually toggling a black X over a single possibility (suit or number) on one
+// card, e.g. when the player infers a card is probably not a particular value.
+// This does not remove the possibility (clues do that) — it only marks it.
 export interface ManualEliminate {
   actionType: "ManualEliminate";
 
@@ -58,7 +59,7 @@ export interface ManualEliminate {
   // human-readable description for toasts, e.g. "Red" or "3"
   hintString: string;
 
-  // the previous and new possibility bitfields for the affected trait
+  // the previous and new manually-crossed bitfields for the affected trait
   previousInformation: number;
   newInformation: number;
 }

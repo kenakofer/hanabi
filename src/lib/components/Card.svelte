@@ -20,8 +20,10 @@
   export let id: number;
   export let numberInformation: NumberEnum;
   export let knownNumberInformation: NumberEnum;
+  export let crossedNumberInformation: NumberEnum = 0 as NumberEnum;
   export let colourInformation: SuitEnum;
   export let knownColourInformation: SuitEnum;
+  export let crossedColourInformation: SuitEnum = 0 as SuitEnum;
   export let note: string;
   export let selected: boolean = false;
   export let isHinted: boolean;
@@ -141,17 +143,16 @@
     return (bitflag & (bitflag - 1)) == 0;
   }
 
-  // Cross off a single possibility from this card. Records a ManualEliminate
-  // action so it can be undone like a hint. Only allowed during live play
-  // (not while reviewing) and never on the last remaining possibility.
+  // Toggle a black X over a single possibility on this card. Records a
+  // ManualEliminate action so it can be undone like a hint. Only allowed during
+  // live play (not while reviewing). This does not remove the possibility —
+  // clues still do that via colourInformation/numberInformation.
   function eliminateColour(suit: SuitEnum): void {
     if (!$gameOrReviewStore) return; // disabled in review mode
     const info = informationOnCardsStore.get(id);
-    const previous = info.colourInformation;
-    if ((previous & suit) === 0) return; // already crossed off
-    if (isSingleFlag(previous)) return; // don't remove the last option
-    const next = (previous & ~suit) as SuitEnum;
-    informationOnCardsStore.set(id, { ...info, colourInformation: next });
+    const previous = info.crossedColourInformation;
+    const next = (previous ^ suit) as SuitEnum; // toggle the X
+    informationOnCardsStore.set(id, { ...info, crossedColourInformation: next });
     const action: ManualEliminate = {
       actionType: "ManualEliminate",
       id,
@@ -166,11 +167,9 @@
   function eliminateNumber(num: NumberEnum): void {
     if (!$gameOrReviewStore) return; // disabled in review mode
     const info = informationOnCardsStore.get(id);
-    const previous = info.numberInformation;
-    if ((previous & num) === 0) return; // already crossed off
-    if (isSingleFlag(previous)) return; // don't remove the last option
-    const next = (previous & ~num) as NumberEnum;
-    informationOnCardsStore.set(id, { ...info, numberInformation: next });
+    const previous = info.crossedNumberInformation;
+    const next = (previous ^ num) as NumberEnum; // toggle the X
+    informationOnCardsStore.set(id, { ...info, crossedNumberInformation: next });
     const action: ManualEliminate = {
       actionType: "ManualEliminate",
       id,
@@ -182,11 +181,11 @@
     actionStore.push(action);
   }
 
-  // Tapping a trait icon crosses it off, unless it's the last remaining
-  // possibility (or we're in review) — in which case the tap falls through to
-  // toggling the card's selected state, like tapping the card itself.
+  // Tapping a trait icon toggles a black X over it (negative info the player
+  // inferred). In review mode the tap falls through to toggling the card's
+  // selected state, like tapping the card itself.
   function handleNumberTap(num: NumberEnum): void {
-    if (!$gameOrReviewStore || isSingleFlag(numberInformation)) {
+    if (!$gameOrReviewStore) {
       if ($activeMenuCard === null) onSelect(id);
       return;
     }
@@ -194,7 +193,7 @@
   }
 
   function handleColourTap(suit: SuitEnum): void {
-    if (!$gameOrReviewStore || isSingleFlag(colourInformation)) {
+    if (!$gameOrReviewStore) {
       if ($activeMenuCard === null) onSelect(id);
       return;
     }
@@ -301,6 +300,7 @@
         <button
           type="button"
           class="trait-icon"
+          class:crossed={crossedNumberInformation & numberEnum}
           title="Cross off {Math.log2(numberEnum) + 1}"
           on:click|stopPropagation={() => handleNumberTap(numberEnum)}
           on:mousedown|stopPropagation
@@ -317,6 +317,9 @@
               : numberIconStyles.strokeColour}
             numberEnum={numberEnum}
           />
+          {#if crossedNumberInformation & numberEnum}
+            <span class="cross-mark" aria-hidden="true">✕</span>
+          {/if}
         </button>
       {/each}
     </div>
@@ -325,6 +328,7 @@
         <button
           type="button"
           class="trait-icon"
+          class:crossed={crossedColourInformation & suitEnum}
           title="Cross off {suitProperties[suitEnum].string}"
           on:click|stopPropagation={() => handleColourTap(suitEnum)}
           on:mousedown|stopPropagation
@@ -341,6 +345,9 @@
             colour={suitEnum}
             isOnlyRainbow={knownColour === "rainbow"}
           />
+          {#if crossedColourInformation & suitEnum}
+            <span class="cross-mark" aria-hidden="true">✕</span>
+          {/if}
         </button>
       {/each}
     </div>
@@ -581,6 +588,42 @@
     padding: 0;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+  }
+  /* Only crossed-off icons need to be a positioning context for their X
+     overlay; applying position to every icon shifts the flex layout. */
+  .trait-icon.crossed {
+    position: relative;
+  }
+  /* Black X overlay marking a manually crossed-off possibility. Anchored to the
+     icon centre with a zero-size box so the (large) glyph never contributes to
+     the flex layout and can't push a card onto a second row. */
+  .cross-mark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    white-space: nowrap;
+    pointer-events: none;
+    color: #000;
+    font-weight: 900;
+    line-height: 1;
+    font-size: 5.2rem;
+    text-shadow:
+      -2px -2px 0 #fff,
+      2px -2px 0 #fff,
+      -2px 2px 0 #fff,
+      2px 2px 0 #fff;
+  }
+  @media (max-width: 600px) {
+    .cross-mark {
+      font-size: 3.6rem;
+    }
   }
   .trait-icon:hover {
     filter: brightness(1.15);

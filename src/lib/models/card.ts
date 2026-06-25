@@ -18,9 +18,14 @@ export interface CardInformation {
   // number
   numberInformation: NumberEnum;
   knownNumberInformation: NumberEnum;
+  // manually X'd-out numbers (still possible per clues, crossed off by the
+  // player). Subset of numberInformation.
+  crossedNumberInformation: NumberEnum;
   // then colour
   colourInformation: SuitEnum;
   knownColourInformation: SuitEnum;
+  // manually X'd-out colours. Subset of colourInformation.
+  crossedColourInformation: SuitEnum;
 }
 
 export interface CardContext {

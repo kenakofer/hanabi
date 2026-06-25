@@ -10,8 +10,10 @@ const defaultData = (config: GameConfig) => {
   return {
     numberInformation: allNumbers,
     knownNumberInformation: 0 as NumberEnum,
+    crossedNumberInformation: 0 as NumberEnum,
     colourInformation: config.variant,
     knownColourInformation: 0 as SuitEnum,
+    crossedColourInformation: 0 as SuitEnum,
   } as CardInformation;
 };
 
