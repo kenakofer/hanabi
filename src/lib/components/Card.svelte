@@ -437,7 +437,7 @@
     height: 10%;
     width: 100%; /* Full width to fit within the card */
     padding: 4px;
-    font-size: 14px; /* Slightly smaller font for the note display */
+    font-size: 16px; /* Card id / note label */
     word-wrap: break-word; /* Ensures long words do not overflow */
     overflow: hidden; /* Hides text that overflows the y-axis */
     text-overflow: ellipsis; /* Adds an ellipsis to indicate text overflow */
@@ -629,7 +629,7 @@
     color: #000;
     font-weight: 900;
     line-height: 1;
-    font-size: 5.2rem;
+    font-size: 3rem;
     text-shadow:
       -2px -2px 0 #fff,
       2px -2px 0 #fff,
@@ -638,7 +638,7 @@
   }
   @media (max-width: 600px) {
     .cross-mark {
-      font-size: 3.6rem;
+      font-size: 3rem;
     }
   }
   .trait-icon:hover {
