@@ -19,88 +19,88 @@ export const enum Variant {
 
 interface SuitProperties {
   string: string, // string for repr
-  stringHint: string | null; // if this suit has an associated hint, string for the UI display, else null
-  colourHint: number | null; // if this colour has an associated hint, the binary hint to be applied
-  positiveColourHintModifier: number | null; // if this suit has any modifier for colour hints given - assume | with the colourHint
-  negativeColourHintModifier: number | null; // if this suit has any modifier for negative colour hints given
-  // assume !(colourHint | negativeColourHintModifier)
-  positiveNumberHintModifier: number | null; // if this suit has any modifier for number hints given (for future development) - assume | with the numberHint
-  negativeNumberHintModifier: number | null; // if this suit has any modifier for number hints given (for future development)
-  // assume !(numberHint | negativeNumberHintModifier)
+  stringClue: string | null; // if this suit has an associated clue, string for the UI display, else null
+  colourClue: number | null; // if this colour has an associated clue, the binary clue to be applied
+  positiveColourClueModifier: number | null; // if this suit has any modifier for colour clues given - assume | with the colourClue
+  negativeColourClueModifier: number | null; // if this suit has any modifier for negative colour clues given
+  // assume !(colourClue | negativeColourClueModifier)
+  positiveNumberClueModifier: number | null; // if this suit has any modifier for number clues given (for future development) - assume | with the numberClue
+  negativeNumberClueModifier: number | null; // if this suit has any modifier for number clues given (for future development)
+  // assume !(numberClue | negativeNumberClueModifier)
 }
 
 export const suitProperties: Record<SuitEnum, SuitProperties> = {
   [SuitEnum.Red]: {
     string: 'Red',
-    stringHint: "Red",
-    colourHint: SuitEnum.Red,
-    positiveColourHintModifier: null,
-    negativeColourHintModifier: null,
-    positiveNumberHintModifier: null,
-    negativeNumberHintModifier: null,
+    stringClue: "Red",
+    colourClue: SuitEnum.Red,
+    positiveColourClueModifier: null,
+    negativeColourClueModifier: null,
+    positiveNumberClueModifier: null,
+    negativeNumberClueModifier: null,
   },
   [SuitEnum.Yellow]: {
     string: 'Yellow',
-    stringHint: "Yellow",
-    colourHint: SuitEnum.Yellow,
-    positiveColourHintModifier: null,
-    negativeColourHintModifier: null,
-    positiveNumberHintModifier: null,
-    negativeNumberHintModifier: null,
+    stringClue: "Yellow",
+    colourClue: SuitEnum.Yellow,
+    positiveColourClueModifier: null,
+    negativeColourClueModifier: null,
+    positiveNumberClueModifier: null,
+    negativeNumberClueModifier: null,
   },
   [SuitEnum.Blue]: {
     string: 'Blue',
-    stringHint: "Blue",
-    colourHint: SuitEnum.Blue,
-    positiveColourHintModifier: null,
-    negativeColourHintModifier: null,
-    positiveNumberHintModifier: null,
-    negativeNumberHintModifier: null,
+    stringClue: "Blue",
+    colourClue: SuitEnum.Blue,
+    positiveColourClueModifier: null,
+    negativeColourClueModifier: null,
+    positiveNumberClueModifier: null,
+    negativeNumberClueModifier: null,
   },
   [SuitEnum.White]: {
     string: 'White',
-    stringHint: "White",
-    colourHint: SuitEnum.White,
-    positiveColourHintModifier: null,
-    negativeColourHintModifier: null,
-    positiveNumberHintModifier: null,
-    negativeNumberHintModifier: null,
+    stringClue: "White",
+    colourClue: SuitEnum.White,
+    positiveColourClueModifier: null,
+    negativeColourClueModifier: null,
+    positiveNumberClueModifier: null,
+    negativeNumberClueModifier: null,
   },
   [SuitEnum.Green]: {
     string: 'Green',
-    stringHint: "Green",
-    colourHint: SuitEnum.Green,
-    positiveColourHintModifier: null,
-    negativeColourHintModifier: null,
-    positiveNumberHintModifier: null,
-    negativeNumberHintModifier: null,
+    stringClue: "Green",
+    colourClue: SuitEnum.Green,
+    positiveColourClueModifier: null,
+    negativeColourClueModifier: null,
+    positiveNumberClueModifier: null,
+    negativeNumberClueModifier: null,
   },
   [SuitEnum.Teal]: {
     string: 'Teal',
-    stringHint: "Teal",
-    colourHint: SuitEnum.Teal,
-    positiveColourHintModifier: null,
-    negativeColourHintModifier: null,
-    positiveNumberHintModifier: null,
-    negativeNumberHintModifier: null,
+    stringClue: "Teal",
+    colourClue: SuitEnum.Teal,
+    positiveColourClueModifier: null,
+    negativeColourClueModifier: null,
+    positiveNumberClueModifier: null,
+    negativeNumberClueModifier: null,
   },
   [SuitEnum.Rainbow]: {
     string: 'Rainbow',
-    stringHint: null,
-    colourHint: null,
-    positiveColourHintModifier: SuitEnum.Rainbow, // apply rainbow on for any positive hints
-    negativeColourHintModifier: SuitEnum.Rainbow, // a negative hint for colour implies not rainbow
-    positiveNumberHintModifier: null,
-    negativeNumberHintModifier: null,
+    stringClue: null,
+    colourClue: null,
+    positiveColourClueModifier: SuitEnum.Rainbow, // apply rainbow on for any positive clues
+    negativeColourClueModifier: SuitEnum.Rainbow, // a negative clue for colour implies not rainbow
+    positiveNumberClueModifier: null,
+    negativeNumberClueModifier: null,
   },
   [SuitEnum.Black]: {
     string: 'Black',
-    stringHint: null,
-    colourHint: null,
-    positiveColourHintModifier: null,
-    negativeColourHintModifier: null,
-    positiveNumberHintModifier: null,
-    negativeNumberHintModifier: null,
+    stringClue: null,
+    colourClue: null,
+    positiveColourClueModifier: null,
+    negativeColourClueModifier: null,
+    positiveNumberClueModifier: null,
+    negativeNumberClueModifier: null,
   },
 };
 
@@ -118,5 +118,5 @@ export function getSuits(suits: number): SuitEnum[] { // a helper function to ta
 
 // export function getEnumFromString(input: string): Suits | null {
 //     const keys = Object.values(Suits);
-//     keys.filter(value => {suitProperties[value].stringHint === input})
+//     keys.filter(value => {suitProperties[value].stringClue === input})
 // }

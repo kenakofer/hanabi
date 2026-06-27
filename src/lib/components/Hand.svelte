@@ -61,7 +61,7 @@
   let reviewSet: boolean = false;
   let cards: number[] = [];
   let cardInformations: CardInformation[] = [];
-  let cardsHinted: boolean[] = [];
+  let cardsClued: boolean[] = [];
   let localReviewTurn: number = 0;
   let localActionStore: GameAction[] = [];
   $: {
@@ -70,7 +70,7 @@
       // populate local cards in hand information
       cards = cardsInHandStore.get();
       cardInformations = cards.map((id) => informationOnCardsStore.get(id));
-      cardsHinted = cards.map((id) => contextOnCardsStore.get(id).isHinted);
+      cardsClued = cards.map((id) => contextOnCardsStore.get(id).isClued);
       // populate local copies of game state
       localReviewTurn = get(reviewTurnStore);
       localActionStore = getActionsFromActionStore();
@@ -80,7 +80,7 @@
       // return to game and clear out old review information
       cards = [];
       cardInformations = [];
-      cardsHinted = [];
+      cardsClued = [];
       localReviewTurn = 0;
       localActionStore = [];
       // and reset loaded state
@@ -92,7 +92,7 @@
     if (action.actionType == "PlayDiscard") {
       return `PlayDiscard card ${action.id}`;
     } else if (action.actionType == "ManualEliminate") {
-      return `not ${action.hintString}`;
+      return `not ${action.clueString}`;
     } else {
       let len = action.affectedIds.length;
       let len_string =
@@ -107,9 +107,9 @@
                 : "hmmmm";
       let plural = len > 1 ? "s" : "";
       if (len === cardsInHandStore.get().length) {
-        return `all these ${action.hintString.toLowerCase()}${plural}`;
+        return `all these ${action.clueString.toLowerCase()}${plural}`;
       }
-      return `${len_string} ${action.hintString.toLowerCase()}${plural}`;
+      return `${len_string} ${action.clueString.toLowerCase()}${plural}`;
     }
   }
 
@@ -171,19 +171,19 @@
                 },
               ];
 
-              // Create updated `cardsHinted` by filtering out the old hint status and adding `false`
-              const newCardsHinted = [
-                ...cardsHinted.filter((_, ind) => ind !== oldCardIndex),
+              // Create updated `cardsClued` by filtering out the old clue status and adding `false`
+              const newCardsClued = [
+                ...cardsClued.filter((_, ind) => ind !== oldCardIndex),
                 false,
               ];
 
               // update with new information
               cards = newCards;
               cardInformations = newCardInformations;
-              cardsHinted = newCardsHinted;
+              cardsClued = newCardsClued;
             }
             break;
-          case "NumberHint":
+          case "NumberClue":
             addToast(actionToProgress, "Learned about");
             const newCardNumberInformations = cardInformations.map(
               (cardInfo, ind): CardInformation => ({
@@ -194,14 +194,14 @@
               })
             );
 
-            const newCardsNumberHinted = cardsHinted.map(
-              (_, ind) => actionToProgress.newHinted[ind]
+            const newCardsNumberClued = cardsClued.map(
+              (_, ind) => actionToProgress.newClued[ind]
             );
 
             cardInformations = newCardNumberInformations;
-            cardsHinted = newCardsNumberHinted;
+            cardsClued = newCardsNumberClued;
             break;
-          case "ColourHint":
+          case "ColourClue":
             addToast(actionToProgress, "Learned about");
             const newCardColourInformations = cardInformations.map(
               (cardInfo, ind): CardInformation => ({
@@ -212,12 +212,12 @@
               })
             );
 
-            const newCardsColourHinted = cardsHinted.map(
-              (_, ind) => actionToProgress.newHinted[ind]
+            const newCardsColourClued = cardsClued.map(
+              (_, ind) => actionToProgress.newClued[ind]
             );
 
             cardInformations = newCardColourInformations;
-            cardsHinted = newCardsColourHinted;
+            cardsClued = newCardsColourClued;
             break;
           case "ManualEliminate":
             addToast(actionToProgress, "Crossed off");
@@ -253,13 +253,13 @@
               ...cards.filter((id) => id > cardId && id < maxCardId), // any cards that go after it, except the final card to preserve hand size
             ];
 
-            // insert the correct isHinted flag
-            const previousCardsHinted = [
-              ...extractValues(cards, cardsHinted, (id) => id < cardId),
-              contextOnCardsStore.get(cardId).isHinted, // the inserted cards most up to date flag
+            // insert the correct isClued flag
+            const previousCardsClued = [
+              ...extractValues(cards, cardsClued, (id) => id < cardId),
+              contextOnCardsStore.get(cardId).isClued, // the inserted cards most up to date flag
               ...extractValues(
                 cards,
-                cardsHinted,
+                cardsClued,
                 (id) => id > cardId && id < maxCardId
               ), // any flags from any cards that go after it, except the final card to preserve hand size
             ];
@@ -278,10 +278,10 @@
             // update local state with previous values
             cards = previousCards;
             cardInformations = previousCardInformations;
-            cardsHinted = previousCardsHinted;
+            cardsClued = previousCardsClued;
             break;
-          case "NumberHint":
-            addToast(actionToUndo, "Undoing hint about");
+          case "NumberClue":
+            addToast(actionToUndo, "Undoing clue about");
 
             const previousCardNumberInformations = cardInformations.map(
               (cardInfo, ind): CardInformation => ({
@@ -292,15 +292,15 @@
               })
             );
 
-            const previousCardsNumberHinted = cardsHinted.map(
-              (_, ind) => actionToUndo.previousHinted[ind]
+            const previousCardsNumberClued = cardsClued.map(
+              (_, ind) => actionToUndo.previousClued[ind]
             );
 
             cardInformations = previousCardNumberInformations;
-            cardsHinted = previousCardsNumberHinted;
+            cardsClued = previousCardsNumberClued;
             break;
-          case "ColourHint":
-            addToast(actionToUndo, "Undoing hint about");
+          case "ColourClue":
+            addToast(actionToUndo, "Undoing clue about");
 
             const previousCardColourInformations = cardInformations.map(
               (cardInfo, ind): CardInformation => ({
@@ -311,12 +311,12 @@
               })
             );
 
-            const previousCardsColourHinted = cardsHinted.map(
-              (_, ind) => actionToUndo.previousHinted[ind]
+            const previousCardsColourClued = cardsClued.map(
+              (_, ind) => actionToUndo.previousClued[ind]
             );
 
             cardInformations = previousCardColourInformations;
-            cardsHinted = previousCardsColourHinted;
+            cardsClued = previousCardsColourClued;
             break;
           case "ManualEliminate":
             addToast(actionToUndo, "Undoing cross-off of");
@@ -354,7 +354,7 @@
         crossedColourInformation={cardInformations[ind].crossedColourInformation}
         note={$contextOnCardsStore.getValueOrDefault(cards[ind]).note}
         selected={$cardsSelectedStore.has(cards[ind])}
-        isHinted={cardsHinted[ind]}
+        isClued={cardsClued[ind]}
         isChopMoved={$contextOnCardsStore.getValueOrDefault(cards[ind]).isChopMoved}
         isFinessed={$contextOnCardsStore.getValueOrDefault(cards[ind]).isFinessed}
         isCritical={$contextOnCardsStore.getValueOrDefault(cards[ind]).isCritical}
@@ -377,7 +377,7 @@
           .crossedColourInformation}
         note={$contextOnCardsStore.getValueOrDefault(id).note}
         selected={$cardsSelectedStore.has(id)}
-        isHinted={$contextOnCardsStore.getValueOrDefault(id).isHinted}
+        isClued={$contextOnCardsStore.getValueOrDefault(id).isClued}
         isChopMoved={$contextOnCardsStore.getValueOrDefault(id).isChopMoved}
         isFinessed={$contextOnCardsStore.getValueOrDefault(id).isFinessed}
         isCritical={$contextOnCardsStore.getValueOrDefault(id).isCritical}

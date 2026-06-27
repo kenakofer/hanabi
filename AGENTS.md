@@ -41,7 +41,7 @@ ones you'll touch most:
 
 - `informationOnCardsStore` — per-card *deduced information*: `CardInformation`
   (`src/lib/models/card.ts`). This is where possibilities live.
-- `contextOnCardsStore` — per-card *context*: note, isHinted, isCritical,
+- `contextOnCardsStore` — per-card *context*: note, isClued, isCritical,
   isChopMoved, isFinessed.
 - `cardsInHandStore`, `cardsSelectedStore`, `actionStore` (undo stack),
   `gameOrReviewStore`, `reviewTurnStore`, `gameConfigStore`.
@@ -73,7 +73,7 @@ you almost always need to update three code paths, or undo/review will silently
 break:
 
 1. **Apply** — wherever the action is created (e.g. `Card.svelte` for
-   `ManualEliminate`, `HintModal.svelte` for hints).
+   `ManualEliminate`, `ClueModal.svelte` for clues).
 2. **Undo** — `handleRollback()` in `GameControls.svelte` (pops `actionStore`).
 3. **Review replay** — the big reactive block in `Hand.svelte` handles BOTH
    forward (apply) and backward (undo) stepping through `reviewTurnStore` on a
@@ -129,7 +129,7 @@ instead. The dev server (`npm run dev`, port 5173) has HMR; edits hot-reload.
 ## Misc
 
 - There are leftover `*.txt` / `*OLD*` files in `components/` and `stores/`
-  (e.g. `HintModal-old.txt`). They're dead; don't treat them as source.
+  (e.g. `ClueModal-old.txt`). They're dead; don't treat them as source.
 - This repo is a fork of `jparkhouse/hanabi-tracker`; the upstream `CHANGELOG.md`
   links point at the original repo. Version bumps here just edit `package.json` +
   `package-lock.json` (root entries only) and tag `vX.Y.Z`; they don't update

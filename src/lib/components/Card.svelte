@@ -26,7 +26,7 @@
   export let crossedColourInformation: SuitEnum = 0 as SuitEnum;
   export let note: string;
   export let selected: boolean = false;
-  export let isHinted: boolean;
+  export let isClued: boolean;
   export let isFinessed: boolean;
   export let isChopMoved: boolean;
   export let isCritical: boolean;
@@ -36,11 +36,11 @@
   $: isMenuActive = $activeMenuCard !== null;
   $: numberOfCards = $gameConfigStore.numberOfCards;
   // Selected is shown via a white glow (see CSS); the border conveys
-  // critical / hinted / finessed / chop-moved / default.
+  // critical / clued / finessed / chop-moved / default.
   $: borderColour = isCritical
     ? "var(--border-critical)"
-    : isHinted
-      ? "var(--border-hinted)"
+    : isClued
+      ? "var(--border-clued)"
       : isFinessed
         ? "var(--border-finessed)"
         : isChopMoved
@@ -144,7 +144,7 @@
   }
 
   // Toggle a black X over a single possibility on this card. Records a
-  // ManualEliminate action so it can be undone like a hint. Only allowed during
+  // ManualEliminate action so it can be undone like a clue. Only allowed during
   // live play (not while reviewing). This does not remove the possibility —
   // clues still do that via colourInformation/numberInformation.
   function eliminateColour(suit: SuitEnum): void {
@@ -157,7 +157,7 @@
       actionType: "ManualEliminate",
       id,
       trait: "colour",
-      hintString: suitProperties[suit].string,
+      clueString: suitProperties[suit].string,
       previousInformation: previous,
       newInformation: next,
     };
@@ -174,7 +174,7 @@
       actionType: "ManualEliminate",
       id,
       trait: "number",
-      hintString: String(Math.log2(num) + 1),
+      clueString: String(Math.log2(num) + 1),
       previousInformation: previous,
       newInformation: next,
     };
@@ -317,7 +317,7 @@
             backgroundColour={numberIconStyles.backgroundColour}
             strokeColour={knownNumberInformation & numberEnum &&
             !isSingleFlag(numberInformation)
-              ? "var(--border-hinted)"
+              ? "var(--border-clued)"
               : numberIconStyles.strokeColour}
             numberEnum={numberEnum}
           />
@@ -344,7 +344,7 @@
           <Colour
             strokeColour={(knownColourInformation & suitEnum) &&
             !isSingleFlag(colourInformation)
-              ? "var(--border-hinted)"
+              ? "var(--border-clued)"
               : numberIconStyles.strokeColour}
             colour={suitEnum}
             isOnlyRainbow={knownColour === "rainbow"}

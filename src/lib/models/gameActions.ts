@@ -5,8 +5,8 @@ import type { SuitEnum } from "./variantEnums";
 
 export type GameAction =
   | PlayDiscard
-  | NumberHint
-  | ColourHint
+  | NumberClue
+  | ColourClue
   | ManualEliminate;
 
 export interface PlayDiscard {
@@ -14,38 +14,38 @@ export interface PlayDiscard {
   id: number;
 }
 
-export interface NumberHint {
-  actionType: "NumberHint";
+export interface NumberClue {
+  actionType: "NumberClue";
 
   ids: number[];
-  hintString: string;
+  clueString: string;
   affectedIds: number[];
 
-  previousHinted: boolean[];
+  previousClued: boolean[];
 
   previousKnownNumberInformation: NumberEnum[];
   previousNumberInformation: NumberEnum[];
   newKnownNumberInformation: NumberEnum[];
   newNumberInformation: NumberEnum[];
 
-  newHinted: boolean[];
+  newClued: boolean[];
 }
 
-export interface ColourHint {
-  actionType: "ColourHint";
+export interface ColourClue {
+  actionType: "ColourClue";
 
   ids: number[];
-  hintString: string;
+  clueString: string;
   affectedIds: number[];
 
-  previousHinted: boolean[];
+  previousClued: boolean[];
 
   previousKnownColourInformation: SuitEnum[];
   previousColourInformation: SuitEnum[];
   newKnownColourInformation: SuitEnum[];
   newColourInformation: SuitEnum[];
 
-  newHinted: boolean[];
+  newClued: boolean[];
 }
 
 // Manually toggling a black X over a single possibility (suit or number) on one
@@ -57,7 +57,7 @@ export interface ManualEliminate {
   id: number;
   trait: "colour" | "number";
   // human-readable description for toasts, e.g. "Red" or "3"
-  hintString: string;
+  clueString: string;
 
   // the previous and new manually-crossed bitfields for the affected trait
   previousInformation: number;

@@ -7,7 +7,7 @@ import type { GameConfig } from "./gameConfigStore";
 const defaultValue = (_config: GameConfig) => {
     return {
         note: "",
-        isHinted: false,
+        isClued: false,
         isChopMoved: false,
         isCritical: false,
         isFinessed: false,

@@ -9,7 +9,7 @@
   import PlayDiscardSelectedCard from "./PlayDiscardSelectedCard.svelte";
   import MoreActionsMenu from "./MoreActionsMenu.svelte";
   import ConfigModal from "./ConfigModal.svelte";
-  import HintModal from "./HintModal.svelte";
+  import ClueModal from "./ClueModal.svelte";
   import ConventionsModal from "./ConventionsModal.svelte";
   import type { GameAction } from "../models/gameActions";
   import { informationOnCardsStore } from "../stores/informationOnCardsStore";
@@ -126,10 +126,10 @@
     isConfigModalOpen = true;
   }
 
-  let isHintModalOpen = false;
+  let isClueModalOpen = false;
 
-  function openHintModal() {
-    isHintModalOpen = true;
+  function openClueModal() {
+    isClueModalOpen = true;
   }
 
   let isConventionsModalOpen = false;
@@ -142,7 +142,7 @@
     if ($actionStoreSize > 0) {
       const actionToUndo = actionStore.pop() as GameAction;
       switch (actionToUndo.actionType) {
-        case "ColourHint": // undo a colour hint
+        case "ColourClue": // undo a colour clue
           actionToUndo.ids.forEach((id, index) => {
             let cardInformation = informationOnCardsStore.get(id);
             cardInformation = {
@@ -156,12 +156,12 @@
             let cardContext = contextOnCardsStore.get(id);
             cardContext = {
               ...cardContext,
-              isHinted: actionToUndo.previousHinted[index],
+              isClued: actionToUndo.previousClued[index],
             };
             contextOnCardsStore.set(id, cardContext);
           });
           break;
-        case "NumberHint": // undo a number hint
+        case "NumberClue": // undo a number clue
           actionToUndo.ids.forEach((id, index) => {
             let cardInformation = informationOnCardsStore.get(id);
             cardInformation = {
@@ -175,7 +175,7 @@
             let cardContext = contextOnCardsStore.get(id);
             cardContext = {
               ...cardContext,
-              isHinted: actionToUndo.previousHinted[index],
+              isClued: actionToUndo.previousClued[index],
             };
             contextOnCardsStore.set(id, cardContext);
           });
@@ -238,9 +238,9 @@
     <button class="configure" on:click={openConfigModal}>⚙️</button>
     <PlayDiscardSelectedCard />
     <button
-      class="hint-panel"
-      on:click={openHintModal}
-      disabled={$cardsSelectedStore.size < 1}>Record Hint</button
+      class="clue-panel"
+      on:click={openClueModal}
+      disabled={$cardsSelectedStore.size < 1}>Record Clue</button
     >
     <button
       class="undo"
@@ -289,7 +289,7 @@
 </div>
 
 <ConfigModal bind:isOpen={isConfigModalOpen} />
-<HintModal bind:isOpen={isHintModalOpen} />
+<ClueModal bind:isOpen={isClueModalOpen} />
 <ConventionsModal bind:isOpen={isConventionsModalOpen} />
 
 <style>
@@ -324,8 +324,8 @@
     opacity: 0.8;
   }
 
-  .hint-panel {
-    align-self: flex-end; /* Aligns the hint panel button at the end */
+  .clue-panel {
+    align-self: flex-end; /* Aligns the clue panel button at the end */
   }
 
   .icon-btn {

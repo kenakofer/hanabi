@@ -12,7 +12,7 @@ The components represent much of the app that a user interacts with. There is a 
 - 0: `App`
   - 1: `GameControls` - the top panel where all the buttons and configuration lives. It has two different modes depending on if the user is in game, or doing a review.
     - 2: `ConfigModal` - the modal panel that opens from the settings button, which is responsible for changing the `gameConfigStore` on settings change, or using the `gameConfigStore` to reset the game knowledge
-    - 2: `HintModal` - the modal panel responsible for providing the user with the available hints for cards selected (which can be read from the `cardsSelectedStore`), allowing the user to save a hint, and updating the saved information (colour and number information in `informationOnCardsStore` and the `isHinted` flag in the `contextOnCardsStore`)
+    - 2: `ClueModal` - the modal panel responsible for providing the user with the available clues for cards selected (which can be read from the `cardsSelectedStore`), allowing the user to save a clue, and updating the saved information (colour and number information in `informationOnCardsStore` and the `isClued` flag in the `contextOnCardsStore`)
     - 2: PlayDiscardSelectedCard - responsible for removing a card from the hand  and adding the next new card (stored in the `cardsInHandStore`)
     - 2: Undo button -  lives in the `GameControls` component here, and undoes the most recent game action (from the `actionStore`) - more on that later.
     - 2: Review toggle - toggles between in game and reviewing game modes - more on that later.
@@ -41,7 +41,7 @@ Here is a complete list of the used stores, in sensible categories:
 - `gameConfigStore`: This is a **persistent store** of type `GameConfig`, a custom type that keeps track of how many cards the player has in their hand (a `number`), and which suits are in play (a `SuitEnum` bitflag, explained later). This store is arguably the most important store of all, since it is both responsible for keeping track of that information for the scope of the current game, and any change to it - either updating or simply overwriting - is consIDered the start of a new game, and triggers the reset of many other stores. The user can do this from the `ConfigModal`, allowing them to specify how many cards are in their hand, and which suits they are using. They can also quickly reset the tracker here if their game was restarted, for example.
 
 **Action tracking**:
-- `actionStore`: This is the only **persistent managed store** to use a `Stack`. It is responsible for storing `GameAction` (a play/discard, a colour hint, or a number hint) objects in a stack, which can then be popped to undo an action, or read to recreate the flow of information in the review functionality. Note that this contains no information about any notes or flags applied.
+- `actionStore`: This is the only **persistent managed store** to use a `Stack`. It is responsible for storing `GameAction` (a play/discard, a colour clue, or a number clue) objects in a stack, which can then be popped to undo an action, or read to recreate the flow of information in the review functionality. Note that this contains no information about any notes or flags applied.
 
 **Card handling**:
 - `cardIDCounterStore`: This is a **persistent store** of type `number`, used to keep track of the next unused card ID. It offers a custom function called `incrementAndGet` that allows the `PlayDiscardSelectedCard` component to ensure it is always getting a previously unseen card. It is de-incremented when a play/discard action is undone, and reset whenever the `gameConfigStore` changes.
@@ -49,8 +49,8 @@ Here is a complete list of the used stores, in sensible categories:
 - `cardsSelectedStore`: this is a **pure store** of type `set<number>`, and keeps track of the card IDs currently selected. The `Hand` uses it to pass the selected state to the relevant cards. It is updated by selecting or deselecting cards, and is reset to an empty set on many game actions being completed, and also when the `gameConfigStore` changes.
 
 **Card information**:
-- `contextOnCardsStore`: This is a **persistent managed store** of type `Dictionary<CardContext>`. The dictionary takes in a card ID as a `number` and returns the relevant `CardContext` (`note`, `isHinted`, `isFinessed`, `isChopMoved` and `isCritical`), or the default value, if that ID has not yet had any information recorded about it. The `Hand` uses it to query and pass on information for the `Card`s using the `cardsInHandStore`'s IDs. It is updated by the user interacting with the `Card` menu, which offers the ability to toggle most flags and also edit or set the card's note; the `NoteModal` and `MarkModal`; and finally applying or undoing a hint will update the `isHinted` flag, which is the only system controlled flag.
-- `informationOnCardsStore`: This is a **persistent managed store** of type `Dictionary<CardInfomation>`. It is responsible for keeping track of the `colourInformation` (the deduced colour information, of type `SuitEnum`), `knownColourInformation` (the given colour information, also a `SuitEnum`), the `numberInformation` (the deduced number information, of type `NumberEnum`) and the `knownNumberInformation` (the given number information, also a `NumberEnum`). This is queried by the `Hand`, and fed to the `Card`s. It is updated by the `HintModal` when a user applies given hints to their hand in game. It is reset when the `gameConfigStore` is updated.
+- `contextOnCardsStore`: This is a **persistent managed store** of type `Dictionary<CardContext>`. The dictionary takes in a card ID as a `number` and returns the relevant `CardContext` (`note`, `isClued`, `isFinessed`, `isChopMoved` and `isCritical`), or the default value, if that ID has not yet had any information recorded about it. The `Hand` uses it to query and pass on information for the `Card`s using the `cardsInHandStore`'s IDs. It is updated by the user interacting with the `Card` menu, which offers the ability to toggle most flags and also edit or set the card's note; the `NoteModal` and `MarkModal`; and finally applying or undoing a clue will update the `isClued` flag, which is the only system controlled flag.
+- `informationOnCardsStore`: This is a **persistent managed store** of type `Dictionary<CardInfomation>`. It is responsible for keeping track of the `colourInformation` (the deduced colour information, of type `SuitEnum`), `knownColourInformation` (the given colour information, also a `SuitEnum`), the `numberInformation` (the deduced number information, of type `NumberEnum`) and the `knownNumberInformation` (the given number information, also a `NumberEnum`). This is queried by the `Hand`, and fed to the `Card`s. It is updated by the `ClueModal` when a user applies given clues to their hand in game. It is reset when the `gameConfigStore` is updated.
 
 **UI state**:
 - `gameOrReviewStore`: This is a simple **pure store** that keeps track of whether we are in-game (`true`) or in review (`false`). It is controlled by the review button in the `GameControls` panel.
@@ -73,7 +73,7 @@ export enum SuitEnum {
   Black = 1 << 6,
 }
 ```
-By using a bitflag system, we can effectively represent the known state of a card. Each bit corresponds to a suit, and if that bit is on, we know that the card could be that suit; if the bit is off, we know that the card cannot be that suit. Applying hints can then use binary operators to handle the logic, which while less readable, is very performant, and an interesting challenge for (my personal) development. Numbers and their corresponding hints use a similar system, whereby the number 1 is the first bit, 2 is the second, etc.
+By using a bitflag system, we can effectively represent the known state of a card. Each bit corresponds to a suit, and if that bit is on, we know that the card could be that suit; if the bit is off, we know that the card cannot be that suit. Applying clues can then use binary operators to handle the logic, which while less readable, is very performant, and an interesting challenge for (my personal) development. Numbers and their corresponding clues use a similar system, whereby the number 1 is the first bit, 2 is the second, etc.
 
 For suits, we also store some information about each suit, which is read from for various parts of the apps logic. For example:
 ```ts
@@ -81,12 +81,12 @@ For suits, we also store some information about each suit, which is read from fo
 export const suitProperties: Record<SuitEnum, SuitProperties> = {
   [SuitEnum.Red]: {
     string: 'Red',
-    stringHint: "Red",
-    colourHint: SuitEnum.Red,
-    positiveColourHintModifier: null,
-    negativeColourHintModifier: null,
-    positiveNumberHintModifier: null,
-    negativeNumberHintModifier: null,
+    stringClue: "Red",
+    colourClue: SuitEnum.Red,
+    positiveColourClueModifier: null,
+    negativeColourClueModifier: null,
+    positiveNumberClueModifier: null,
+    negativeNumberClueModifier: null,
   },
   ...
 }
@@ -94,14 +94,14 @@ export const suitProperties: Record<SuitEnum, SuitProperties> = {
 
 The `SuitProperties` interface keeps track of:
 - `string`: the human-readible string of the Suit, which can be used to convert the relevant `SuitEnum` for the UI
-- `stringHint`: if the suit is hintable, then setting this to a string will ask the hint logic to check for and apply relevant hints; otherwise, leaving it null implies this suit is not hintable.
-- `colourHint`: the SuitEnum that should be applied when giving a colourHint. Can be set to null for unhintable suits
-- `positiveColourHintModifier`: When a colour hint is applied to a selected card (a 'positive hint'), if this suit is in play it has the option to apply a modifier to that hint. The easiest way to think about this is with the rainbow suit, where learning a card is green implies that the card is green or rainbow. This allows the rainbow suit to apply an 'or rainbow' modifier to the green (or any other hintable colour) hint.
-- `negativeColourHintModifier`: As above, but for unselected cards (a 'negative hint'). The useful example here is also for the rainbow suit: if a card is not green, it is also necessarily not rainbow.
-- `positiveNumberHintModifier`: As above, but in the case of being selected for a number hint. This may be useful in the future for suits that can recieve any number hints (see [hanab.live](https://hanab.live)'s pink or omni suits).
-- `negativeNumberHintModifier`: As above, but when not being selected for a number hint.
+- `stringClue`: if the suit is clueable, then setting this to a string will ask the clue logic to check for and apply relevant clues; otherwise, leaving it null implies this suit is not clueable.
+- `colourClue`: the SuitEnum that should be applied when giving a colourClue. Can be set to null for unclueable suits
+- `positiveColourClueModifier`: When a colour clue is applied to a selected card (a 'positive clue'), if this suit is in play it has the option to apply a modifier to that clue. The easiest way to think about this is with the rainbow suit, where learning a card is green implies that the card is green or rainbow. This allows the rainbow suit to apply an 'or rainbow' modifier to the green (or any other clueable colour) clue.
+- `negativeColourClueModifier`: As above, but for unselected cards (a 'negative clue'). The useful example here is also for the rainbow suit: if a card is not green, it is also necessarily not rainbow.
+- `positiveNumberClueModifier`: As above, but in the case of being selected for a number clue. This may be useful in the future for suits that can recieve any number clues (see [hanab.live](https://hanab.live)'s pink or omni suits).
+- `negativeNumberClueModifier`: As above, but when not being selected for a number clue.
 
-There are some future extensions I may choose to make here: for example, [hanab.live](https://hanab.live)'s brown suit takes no number clues, and so if a card recieves a number clue, it is not brown. This implies a `positiveNumberHintToColourModifier` in the current implementation, which I am in no rush to implement.
+There are some future extensions I may choose to make here: for example, [hanab.live](https://hanab.live)'s brown suit takes no number clues, and so if a card recieves a number clue, it is not brown. This implies a `positiveNumberClueToColourModifier` in the current implementation, which I am in no rush to implement.
 
 Finally, each enum provides a helper function to deconstruct a composite enum into the individual ones. For example a red or rainbow card (`0b0100001`) would return `[0b0000001, 0b0100000]`, for both red and rainbow respectively.
 

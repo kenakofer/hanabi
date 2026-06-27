@@ -8,7 +8,7 @@ export interface Card {
   colourInformation: SuitEnum;
   id: number; // Unique identifier for each card
   note: string;
-  isHinted: boolean;
+  isClued: boolean;
   isFinessed: boolean;
   isChopMoved: boolean;
   isCritical: boolean;
@@ -30,7 +30,7 @@ export interface CardInformation {
 
 export interface CardContext {
   note: string;
-  isHinted: boolean;
+  isClued: boolean;
   isFinessed: boolean;
   isChopMoved: boolean;
   isCritical: boolean;
