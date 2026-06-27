@@ -1,5 +1,73 @@
 # Changelog
 
+## [2.4.0](https://github.com/kenakofer/hanabi/compare/v2.3.0...v2.4.0) (2026-06-26)
+
+
+### Features
+
+* add in-game conventions cheat sheet (📖 button) indexing the H-group conventions by level, each linking to its section on hanabi.github.io ([dfd1dfa](https://github.com/kenakofer/hanabi/commit/dfd1dfa))
+* render the clue modal with the same number/colour icons the cards use ([c99166b](https://github.com/kenakofer/hanabi/commit/c99166b))
+
+
+### Bug Fixes
+
+* clarify the wake-lock button label so it reads as an action, not a status ([048b186](https://github.com/kenakofer/hanabi/commit/048b186))
+
+
+### Code Refactoring
+
+* rename "hint" vocabulary to "clue" throughout to match official Hanabi terminology ([a309b61](https://github.com/kenakofer/hanabi/commit/a309b61))
+* replace the cheat-sheet footer with a header Close button, and drop leading "The " from chips to save space ([415ec39](https://github.com/kenakofer/hanabi/commit/415ec39), [b6d7012](https://github.com/kenakofer/hanabi/commit/b6d7012))
+
+
+### Styles
+
+* shrink cross-marks to 3rem and bump the card-id label to 16px ([dd14705](https://github.com/kenakofer/hanabi/commit/dd14705))
+
+
+### Tests
+
+* cover the getNumbers/getSuits bitflag helpers ([6ec9800](https://github.com/kenakofer/hanabi/commit/6ec9800))
+
+## [2.3.0](https://github.com/kenakofer/hanabi/compare/v2.2.0...v2.3.0) (2026-06-24)
+
+
+### Features
+
+* indicate card selection with a yellow down arrow that pokes above the top edge of the card ([3437a9b](https://github.com/kenakofer/hanabi/commit/3437a9b), [9604670](https://github.com/kenakofer/hanabi/commit/9604670), [6b9cc21](https://github.com/kenakofer/hanabi/commit/6b9cc21))
+* cross off card traits with a black X instead of removing them; tapping the last remaining trait selects the card ([641a154](https://github.com/kenakofer/hanabi/commit/641a154), [2391492](https://github.com/kenakofer/hanabi/commit/2391492))
+* move the version link into the top control row ([966bdbf](https://github.com/kenakofer/hanabi/commit/966bdbf))
+* submit the card note menu on the Enter key ([7bb1e13](https://github.com/kenakofer/hanabi/commit/7bb1e13))
+* add a fullscreen toggle button ([dbac1ad](https://github.com/kenakofer/hanabi/commit/dbac1ad))
+
+
+### Bug Fixes
+
+* render all number icons at a uniform height ([cb2f267](https://github.com/kenakofer/hanabi/commit/cb2f267))
+
+## [2.2.0](https://github.com/kenakofer/hanabi/compare/v2.1.1...v2.2.0) (2026-06-24)
+
+
+### Features
+
+* rework card selection/clue visuals and trait-tap behaviour ([92161ff](https://github.com/kenakofer/hanabi/commit/92161ff))
+* tap card icons to cross off possibilities ([9abb432](https://github.com/kenakofer/hanabi/commit/9abb432))
+* allow recording any clue regardless of the card's current possibilities ([3025cc5](https://github.com/kenakofer/hanabi/commit/3025cc5))
+* add teal as an optional sixth standard suit, using the hanab.live teal pip glyph ([3885b47](https://github.com/kenakofer/hanabi/commit/3885b47), [b7ee171](https://github.com/kenakofer/hanabi/commit/b7ee171))
+* draw new cards on the left by default ([94ea6bd](https://github.com/kenakofer/hanabi/commit/94ea6bd))
+* enlarge colour pips and restore the gold clue border ([49aac09](https://github.com/kenakofer/hanabi/commit/49aac09), [acd9dff](https://github.com/kenakofer/hanabi/commit/acd9dff))
+
+
+### Bug Fixes
+
+* keep number glyphs sized consistently with colour pips ([65e7027](https://github.com/kenakofer/hanabi/commit/65e7027))
+* give the black colour icon an outline ([432031a](https://github.com/kenakofer/hanabi/commit/432031a))
+
+
+### Miscellaneous
+
+* configure GitHub Pages deploy, fix links, rewrite README, and update the page title ([363bf06](https://github.com/kenakofer/hanabi/commit/363bf06), [6d4ecf9](https://github.com/kenakofer/hanabi/commit/6d4ecf9))
+
 ## [2.1.1](https://github.com/jparkhouse/hanabi-tracker/compare/v2.1.0...v2.1.1) (2024-12-02)
 
 
