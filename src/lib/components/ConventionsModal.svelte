@@ -8,6 +8,12 @@
 
   export let isOpen = false;
 
+  // Drop a leading "The " to save horizontal space in the chip list. The
+  // underlying data keeps the full heading text; this is display-only.
+  function shortName(name: string): string {
+    return name.replace(/^The /, "");
+  }
+
   function closePanel() {
     isOpen = false;
   }
@@ -29,8 +35,8 @@
           <div class="level-row">
             <span class="level-label">Level {level}</span>
             {#each conventions as convention}
-              <a href={convention.href} target="_blank" rel="noopener">
-                {convention.name}
+              <a href={convention.href} target="_blank" rel="noopener" title={convention.name}>
+                {shortName(convention.name)}
               </a>
             {/each}
           </div>
