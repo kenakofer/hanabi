@@ -10,6 +10,7 @@
   import MoreActionsMenu from "./MoreActionsMenu.svelte";
   import ConfigModal from "./ConfigModal.svelte";
   import HintModal from "./HintModal.svelte";
+  import ConventionsModal from "./ConventionsModal.svelte";
   import type { GameAction } from "../models/gameActions";
   import { informationOnCardsStore } from "../stores/informationOnCardsStore";
   import { cardsInHandStore } from "../stores/cardsInHandStore";
@@ -129,6 +130,12 @@
 
   function openHintModal() {
     isHintModalOpen = true;
+  }
+
+  let isConventionsModalOpen = false;
+
+  function openConventionsModal() {
+    isConventionsModalOpen = true;
   }
 
   function handleRollback() {
@@ -256,6 +263,14 @@
     <a class="version-link" href={versionHref} target="_blank" rel="noopener">
       {versionLabel}
     </a>
+    <button
+      class="icon-btn"
+      on:click={openConventionsModal}
+      aria-label="Conventions cheat sheet"
+      title="Conventions cheat sheet"
+    >
+      📖
+    </button>
     {#if fullscreenSupported}
       <button
         class="fullscreen-btn"
@@ -275,6 +290,7 @@
 
 <ConfigModal bind:isOpen={isConfigModalOpen} />
 <HintModal bind:isOpen={isHintModalOpen} />
+<ConventionsModal bind:isOpen={isConventionsModalOpen} />
 
 <style>
   .game-controls {
@@ -310,6 +326,14 @@
 
   .hint-panel {
     align-self: flex-end; /* Aligns the hint panel button at the end */
+  }
+
+  .icon-btn {
+    font-size: 1.1rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* Fullscreen toggle is only useful on mobile / touch devices, so hide it

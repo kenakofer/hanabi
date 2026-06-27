@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "check": "svelte-check --tsconfig ./tsconfig.json",
+    "scrape:conventions": "node scripts/scrape-conventions.mjs",
     "prepare": "husky"
   },
   "devDependencies": {
