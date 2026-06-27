@@ -24,7 +24,7 @@
     <div class="conventions-modal" on:click|stopPropagation>
       <div class="header">
         <h2>Conventions cheat sheet</h2>
-        <button class="close-x" on:click={closePanel} aria-label="Close">✕</button>
+        <button class="close-btn" on:click={closePanel}>Close</button>
       </div>
       <p class="subtitle">
         H-group conventions by level. Tap one to open its section on
@@ -41,9 +41,6 @@
             {/each}
           </div>
         {/each}
-      </div>
-      <div class="actions">
-        <button on:click={closePanel}>Close</button>
       </div>
     </div>
   </div>
@@ -90,20 +87,16 @@
     font-size: 1.2rem;
   }
 
-  .close-x {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.2rem;
+  .close-btn {
+    flex-shrink: 0;
     cursor: pointer;
-    line-height: 1;
-    padding: 4px;
   }
 
   .subtitle {
     margin: 4px 0 12px;
     font-size: 0.85rem;
     opacity: 0.85;
+    text-align: left;
   }
 
   .scroll {
@@ -145,10 +138,5 @@
   a:hover {
     background-color: rgba(0, 0, 0, 0.5);
     text-decoration: underline;
-  }
-
-  .actions {
-    margin-top: 12px;
-    text-align: right;
   }
 </style>
