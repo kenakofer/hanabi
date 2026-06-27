@@ -3,6 +3,8 @@
   import type { CardInformation } from "../models/card";
   import { NumberEnum } from "../models/numberEnums";
   import { SuitEnum, getSuits, suitProperties } from "../models/variantEnums";
+  import Number from "./Number.svelte";
+  import Colour from "./Colour.svelte";
   import { cardsSelectedStore } from "../stores/cardsSelectedStore";
   import { cardsInHandStore } from "../stores/cardsInHandStore";
   import { informationOnCardsStore } from "../stores/informationOnCardsStore";
@@ -313,17 +315,6 @@
     })
   }
 
-  function isSelectedHint(
-    hint: SelectedHint,
-    selectedHint: SelectedHint
-  ): boolean {
-    const result =
-      hint.type === selectedHint.type &&
-      hint.colourValue === selectedHint.colourValue &&
-      hint.numberValue === selectedHint.numberValue;
-    return selectedHint && result;
-  }
-
   function selectColourHint(colourHint: SuitEnum): void {
     selectedHint = {
       type: "colour",
@@ -358,33 +349,31 @@
       <div class="numbers-hints">
         {#each [0, 1, 2, 3, 4] as index}
           <button
-            class="btn {isSelectedHint(
-              {
-                type: 'number',
-                colourValue: null,
-                numberValue: availableNumberHintsEnums[index],
-              },
-              selectedHint
-            )
-              ? 'selected'
-              : ''}"
+            type="button"
+            class="icon-btn"
+            title={availableNumberHintsStrings[index]}
+            aria-label="Clue {availableNumberHintsStrings[index]}"
             on:click={() => selectNumberHint(availableNumberHintsEnums[index])}
-            >{availableNumberHintsStrings[index]}</button
           >
+            <Number
+              backgroundColour="white"
+              strokeColour="black"
+              numberEnum={availableNumberHintsEnums[index]}
+            />
+          </button>
         {/each}
       </div>
       <div class="colours-hints">
         {#each availableColourHintsEnums as colour}
           <button
-            class="btn {isSelectedHint(
-              { type: 'colour', colourValue: colour, numberValue: null },
-              selectedHint
-            )
-              ? 'selected'
-              : ''}"
+            type="button"
+            class="icon-btn"
+            title={suitProperties[colour].stringHint}
+            aria-label="Clue {suitProperties[colour].stringHint}"
             on:click={() => selectColourHint(colour)}
-            >{suitProperties[colour].stringHint}</button
           >
+            <Colour strokeColour="white" {colour} />
+          </button>
         {/each}
       </div>
       <div class="actions">
@@ -415,18 +404,41 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   }
 
-  .numbers-hints {
-    padding: 20px;
-    gap: 10px;
-  }
-
+  .numbers-hints,
   .colours-hints {
-    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 10px;
+    padding: 12px 8px;
   }
 
-  .selected {
-    background-color: lightblue;
-    color: black;
+  /* Clue choices rendered with the same number/colour icons the cards use. */
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 4px;
+    background: none;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .icon-btn:hover {
+    border-color: lightgray;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .icon-btn :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .actions {
+    text-align: center;
+    margin-top: 8px;
   }
 </style>
