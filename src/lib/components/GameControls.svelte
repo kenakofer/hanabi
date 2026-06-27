@@ -44,7 +44,7 @@
 
   let wakeLock: WakeLockSentinel | null = null;
   let wakeLockSupported = "wakeLock" in navigator;
-  let wakeLockButtonText = "Wake Lock Off"; // Initial text
+  let wakeLockButtonText = "Keep Screen Awake"; // Action label — wake lock starts off
 
   // Fullscreen toggle (shown on mobile only — see CSS). Only render the button
   // where the Fullscreen API is actually available.
@@ -83,16 +83,16 @@
         wakeLock = await navigator.wakeLock.request("screen");
         wakeLock.addEventListener("release", () => {
           wakeLock = null;
-          wakeLockButtonText = "Turn Wake Lock On"; // Update text when the lock is released
+          wakeLockButtonText = "Keep Screen Awake"; // Back to the "turn it on" action
         });
-        wakeLockButtonText = "Turn Wake Lock Off"; // Update text to reflect status
+        wakeLockButtonText = "Allow Screen to Sleep"; // Lock is on — offer to turn it off
       } catch (err) {
         console.error(`Could not acquire wake lock: ${err}`);
       }
     } else {
       wakeLock.release();
       wakeLock = null;
-      wakeLockButtonText = "Turn Wake Lock on"; // Update text when the lock is released
+      wakeLockButtonText = "Keep Screen Awake"; // Back to the "turn it on" action
     }
   }
 
