@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.5.0](https://github.com/kenakofer/hanabi/compare/v2.4.0...v2.5.0) (2026-07-16)
+
+
+### Features
+
+* only offer clues that are actually possible — the Record Clue dialog hides a colour or number that would leave a card in your hand with no possibilities at all ([15b91a6](https://github.com/kenakofer/hanabi/commit/15b91a6))
+
+
+### Bug Fixes
+
+* recording the same clue one touched card at a time no longer freezes the app and leaves it unable to reload ([c005b22](https://github.com/kenakofer/hanabi/commit/c005b22))
+* repair saved games that already contain an impossible card, instead of failing to load ([c005b22](https://github.com/kenakofer/hanabi/commit/c005b22))
+
+
+### Code Refactoring
+
+* extract the clue bitfield maths from ClueModal into models/clueLogic.ts so it can be tested ([c005b22](https://github.com/kenakofer/hanabi/commit/c005b22))
+
+
+### Tests
+
+* cover the clue maths and the clue-validity gate ([c005b22](https://github.com/kenakofer/hanabi/commit/c005b22), [15b91a6](https://github.com/kenakofer/hanabi/commit/15b91a6))
+
 ## [2.4.0](https://github.com/kenakofer/hanabi/compare/v2.3.0...v2.4.0) (2026-06-26)
 
 

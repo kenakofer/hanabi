@@ -51,8 +51,11 @@ ones you'll touch most:
 Suits (`SuitEnum`) and numbers (`NumberEnum`) are **bitfields**, not arrays. A
 card's `colourInformation` / `numberInformation` is an OR of every still-possible
 value. Helpers `getSuits()` / `getNumbers()` expand a bitfield to an array for
-rendering. `isSingleFlag(x)` (== `x & (x-1)) === 0`) checks "exactly one
-possibility left". Clearing a possibility = `info & ~flag`; toggling = `info ^ flag`.
+rendering. `isSingleFlag(x)` checks "exactly one possibility left" and lives in
+`models/clueLogic.ts`. Note it is `x !== 0 && (x & (x-1)) === 0` — the bare
+`x & (x-1)` idiom reports **0 as a single flag**, which is what made an
+impossible card render as "fully known" and crash on `suitProperties[0]`.
+Clearing a possibility = `info & ~flag`; toggling = `info ^ flag`.
 
 ### Two *different* kinds of "negative info" — don't conflate them
 
@@ -65,6 +68,43 @@ possibility left". Clearing a possibility = `info & ~flag`; toggling = `info ^ f
 
 Tapping the **last remaining** possibility (`isSingleFlag`) falls through to
 selecting the card instead of crossing off.
+
+`colourInformation` / `numberInformation` are **only ever written by a clue**, a
+card draw, or an undo/replay of one of those. Cross-offs write *only* to
+`crossed*Information`. Keep it that way: the clue-validity gate below depends on
+it, and it was violated once already (cross-off used to narrow
+`colourInformation` directly), which forced the gate's removal.
+
+### A card must never reach zero possibilities
+
+A card with no possible suits (or numbers) cannot exist, and the UI has no way
+to draw one. Two independent layers stop it, both in `models/clueLogic.ts`:
+
+1. **The gate** — `isColourClueValid` / `isNumberClueValid`. The Record Clue
+   dialog (`ClueModal.svelte`) hides any clue that would zero *some card in the
+   hand*. A clue is one atomic event over the whole hand — positive to the
+   selected cards, negative to the rest — so validity is a question about the
+   hand, not one card. The gate calls the real `calculate*` functions rather
+   than restating their maths, so the dialog can't offer something the save path
+   would refuse to write.
+2. **The guard** — `calculatePositive*Clue` ORs the clued value back in, and
+   `calculateNegative*Clue` never strips a value the card was *positively* clued
+   for (it consults `known*Information`). Defence-in-depth: the gate should make
+   this unreachable, but it is the last thing between a gate bug and a save that
+   won't load.
+
+The guard is why a player can clue the touched cards **one at a time** — clue
+Blue on card A, then Blue again on card B — without card A becoming "blue and
+not blue". That's a natural way to play and used to freeze the app.
+
+The gate reads **clue-derived information only**. A manual cross-off is a guess
+and must never hide a clue that really happened at the table; that conflation is
+exactly why the gate was removed in `3025cc5` and why it was safe to restore
+once `641a154` moved cross-offs into their own field.
+
+Old saves can still contain a zeroed card. `informationOnCardsStore` passes a
+`repair` function to `createManagedStore`, which widens any dead field back to
+every value on load.
 
 ## Actions, undo, and review are handled in THREE places
 
@@ -125,6 +165,30 @@ google-chrome-stable --headless=new --disable-gpu --no-sandbox \
 `--dump-dom` snapshots before scripts run / before layout, so it's unreliable
 for reading `getBBox()` results — render the value into the DOM and screenshot
 instead. The dev server (`npm run dev`, port 5173) has HMR; edits hot-reload.
+
+### Driving the app (not just screenshotting it)
+
+To actually click through the app, launch Chrome with `--remote-debugging-port`
+and drive it over CDP. Node 21 can do this with no dependencies: `fetch` the
+target list, then `new WebSocket(...)` under `node --experimental-websocket`.
+Note `/json/new` requires **PUT**, not GET, on current Chrome. Playwright is
+*not* installed — `npx playwright` silently downloads it; don't rely on it.
+
+Two traps that will cost you an hour each:
+
+- **Card selection needs real input events with a `buttons` field.** A synthetic
+  `element.click()` does nothing: selection fires from `handleInteractionEnd` on
+  `mouseup`/`touchend` (see `Card.svelte`), and the handler checks
+  `event.target.closest(".card")`. Use `Input.dispatchMouseEvent` with
+  `mousePressed`/`mouseReleased` **and** `buttons: 1`/`buttons: 0`, or the event
+  arrives without a usable target and nothing selects.
+- **Screenshot early when a probe reads empty.** An empty selector result often
+  means a modal you opened by accident is covering the page (clicking "the first
+  button" hits the ⚙️ settings gear), not that the thing under test is broken.
+  One screenshot answers what six more probes will not.
+
+`Record Clue` is `disabled` until at least one card is selected, so any probe
+that opens the clue dialog must select a card first.
 
 ## Misc
 
