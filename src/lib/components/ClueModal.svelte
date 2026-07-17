@@ -17,6 +17,9 @@
     calculateNegativeColourClue,
     calculatePositiveNumberClue,
     calculateNegativeNumberClue,
+    isColourClueValid,
+    isNumberClueValid,
+    type ClueTarget,
   } from "../models/clueLogic";
 
   export let isOpen = false;
@@ -55,6 +58,26 @@
       (suit) => suitProperties[suit].stringClue != null
     );
   } // this should return matching arrays of all suit Enums with a stringClue property (i.e. all clueable suits)
+
+  // The hand as the clue logic sees it. Recomputed as cards are selected, so
+  // the dialog only ever offers clues that are possible right now.
+  $: hand = Array.from($cardsInHandStore).map((card): ClueTarget => {
+    const information = $informationOnCardsStore.getValueOrDefault(card);
+    return {
+      information: information.colourInformation,
+      knownInformation: information.knownColourInformation,
+      isSelected: $cardsSelectedStore.has(card),
+    };
+  });
+
+  $: numberHand = Array.from($cardsInHandStore).map((card): ClueTarget => {
+    const information = $informationOnCardsStore.getValueOrDefault(card);
+    return {
+      information: information.numberInformation,
+      knownInformation: information.knownNumberInformation,
+      isSelected: $cardsSelectedStore.has(card),
+    };
+  });
 
   function saveClue(): void {
     if (!selectedClue.type) return;
@@ -259,6 +282,7 @@
     <div class="clue-modal" on:click|stopPropagation>
       <div class="numbers-clues">
         {#each [0, 1, 2, 3, 4] as index}
+          {#if isNumberClueValid(numberHand, availableNumberCluesEnums[index])}
           <button
             type="button"
             class="icon-btn"
@@ -272,10 +296,12 @@
               numberEnum={availableNumberCluesEnums[index]}
             />
           </button>
+          {/if}
         {/each}
       </div>
       <div class="colours-clues">
         {#each availableColourCluesEnums as colour}
+          {#if isColourClueValid(hand, colour)}
           <button
             type="button"
             class="icon-btn"
@@ -285,6 +311,7 @@
           >
             <Colour strokeColour="white" {colour} />
           </button>
+          {/if}
         {/each}
       </div>
       <div class="actions">

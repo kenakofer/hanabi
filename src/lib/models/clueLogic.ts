@@ -87,3 +87,58 @@ export function calculateNegativeNumberClue(
 export function isSingleFlag(bitflag: SuitEnum | NumberEnum): boolean {
   return (bitflag as number) !== 0 && (bitflag & (bitflag - 1)) === 0;
 }
+
+// One card's worth of the state a clue reads.
+export interface ClueTarget {
+  information: number;
+  knownInformation: number;
+  isSelected: boolean;
+}
+
+// Would this clue leave some card with no possibilities left? A clue applies to
+// the whole hand at once — positive to the selected cards, negative to the rest
+// — so validity is a question about the hand, not any single card.
+//
+// This asks the real calculate* functions what they would write rather than
+// re-deriving the maths, so the dialog can never offer a clue that the save
+// path would then refuse to represent.
+//
+// Only clue-derived information is consulted. A player's manual cross-off lives
+// in crossed*Information and is deliberately ignored: it is a guess, and a
+// guess must never hide a clue that really happened at the table.
+function isClueValid(
+  hand: ClueTarget[],
+  clue: number,
+  positive: (information: number, clue: number) => number,
+  negative: (information: number, clue: number, known: number) => number
+): boolean {
+  return hand.every((card) =>
+    card.isSelected
+      ? positive(card.information, clue) !== 0
+      : negative(card.information, clue, card.knownInformation) !== 0
+  );
+}
+
+export function isColourClueValid(
+  hand: ClueTarget[],
+  colourClue: SuitEnum
+): boolean {
+  return isClueValid(
+    hand,
+    colourClue,
+    calculatePositiveColourClue as (i: number, c: number) => number,
+    calculateNegativeColourClue as (i: number, c: number, k: number) => number
+  );
+}
+
+export function isNumberClueValid(
+  hand: ClueTarget[],
+  numberClue: NumberEnum
+): boolean {
+  return isClueValid(
+    hand,
+    numberClue,
+    calculatePositiveNumberClue as (i: number, c: number) => number,
+    calculateNegativeNumberClue as (i: number, c: number, k: number) => number
+  );
+}

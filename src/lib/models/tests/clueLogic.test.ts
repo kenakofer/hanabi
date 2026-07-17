@@ -3,7 +3,10 @@ import {
   calculateNegativeColourClue,
   calculatePositiveNumberClue,
   calculateNegativeNumberClue,
+  isColourClueValid,
+  isNumberClueValid,
   isSingleFlag,
+  type ClueTarget,
 } from "../clueLogic";
 import { NumberEnum, allNumbers } from "../numberEnums";
 import { SuitEnum, Variant } from "../variantEnums";
@@ -175,5 +178,53 @@ describe("number clues", () => {
 
     expect(cardA).toBe(NumberEnum.Three);
     expect(cardB).toBe(NumberEnum.Three);
+  });
+});
+
+// The Record Clue dialog only offers clues that are possible right now, so an
+// impossible one can never be applied. This is the gate the upstream project
+// has; it was dropped here when manual cross-offs still narrowed
+// colourInformation directly, and became safe to restore once the black X moved
+// to its own field.
+describe("clue validity gate", () => {
+  const card = (
+    information: number,
+    isSelected: boolean,
+    knownInformation = 0
+  ): ClueTarget => ({ information, knownInformation, isSelected });
+
+  it("offers every colour on a fresh hand", () => {
+    const hand = [card(noVariant, true), card(noVariant, false)];
+    expect(isColourClueValid(hand, SuitEnum.Red)).toBe(true);
+    expect(isColourClueValid(hand, SuitEnum.Blue)).toBe(true);
+  });
+
+  it("hides a colour that would leave an unselected card with nothing", () => {
+    // This card can only be blue, and is not in the clue: a blue clue would
+    // say it is not blue, leaving no suit at all.
+    const hand = [card(SuitEnum.Blue, false)];
+    expect(isColourClueValid(hand, SuitEnum.Blue)).toBe(false);
+  });
+
+  it("hides a number that would leave an unselected card with nothing", () => {
+    const hand = [card(NumberEnum.Three, false)];
+    expect(isNumberClueValid(hand, NumberEnum.Three)).toBe(false);
+  });
+
+  // The case that crashed the app: the player clues the touched cards one at a
+  // time. The second clue is genuinely possible and must stay offered — the
+  // positive-clue guard keeps card A blue rather than blanking it.
+  it("still offers a repeat clue when the earlier card was positively clued", () => {
+    const alreadyClued = card(SuitEnum.Blue, false, SuitEnum.Blue);
+    const nowSelected = card(noVariant, true);
+    expect(isColourClueValid([alreadyClued, nowSelected], SuitEnum.Blue)).toBe(
+      true
+    );
+  });
+
+  it("judges the whole hand, not just the selected cards", () => {
+    const doomed = card(SuitEnum.Red, false); // can only be red
+    const selected = card(noVariant, true);
+    expect(isColourClueValid([selected, doomed], SuitEnum.Red)).toBe(false);
   });
 });
