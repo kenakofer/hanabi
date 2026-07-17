@@ -12,6 +12,12 @@
   import { contextOnCardsStore } from "../stores/contextOnCardsStore";
   import type { ColourClue, NumberClue } from "../models/gameActions";
   import { actionStore } from "../stores/actionStore";
+  import {
+    calculatePositiveColourClue,
+    calculateNegativeColourClue,
+    calculatePositiveNumberClue,
+    calculateNegativeNumberClue,
+  } from "../models/clueLogic";
 
   export let isOpen = false;
 
@@ -49,66 +55,6 @@
       (suit) => suitProperties[suit].stringClue != null
     );
   } // this should return matching arrays of all suit Enums with a stringClue property (i.e. all clueable suits)
-
-  function getPositiveColourClueModifier(
-    colourInformation: SuitEnum
-  ): SuitEnum {
-    return getSuits(colourInformation) // checks for any positive clue modifiers from suits (such as rainbow taking all colour clues)
-      .map((value) => {
-        return suitProperties[value].positiveColourClueModifier;
-      })
-      .filter((value) => {
-        return value !== null;
-      })
-      .reduce((result, num) => {
-        return (result as number) | (num as number);
-      }, 0) as SuitEnum;
-  }
-
-  function getPositiveNumberClueModifier(
-    numberInformation: NumberEnum
-  ): NumberEnum {
-    return getSuits(numberInformation) // checks for any positive clue modifiers from suits (such as pink taking all number clues)
-      .map((value) => {
-        return suitProperties[value].positiveNumberClueModifier;
-      })
-      .filter((value) => {
-        return value !== null;
-      })
-      .reduce((result, num) => {
-        return (result as number) | (num as number);
-      }, 0) as NumberEnum;
-  }
-
-  function getNegativeColourClueModifier(
-    colourInformation: SuitEnum
-  ): SuitEnum {
-    return getSuits(colourInformation) // checks for any negative clue modifiers from suits (such as black taking no colour clues)
-      .map((value) => {
-        return suitProperties[value].negativeColourClueModifier;
-      })
-      .filter((value) => {
-        return value !== null;
-      })
-      .reduce((result, num) => {
-        return (result as number) | (num as number);
-      }, 0) as SuitEnum;
-  }
-
-  function getNegativeNumberClueModifier(
-    numberInformation: NumberEnum
-  ): NumberEnum {
-    return getSuits(numberInformation) // checks for any negative clue modifiers from suits (such as brown taking no number clues)
-      .map((value) => {
-        return suitProperties[value].negativeNumberClueModifier;
-      })
-      .filter((value) => {
-        return value !== null;
-      })
-      .reduce((result, num) => {
-        return (result as number) | (num as number);
-      }, 0) as NumberEnum;
-  }
 
   function saveClue(): void {
     if (!selectedClue.type) return;
@@ -163,7 +109,8 @@
       } else {
         cardInformation.colourInformation = calculateNegativeColourClue(
           cardInformation.colourInformation,
-          colourClue
+          colourClue,
+          cardInformation.knownColourInformation
         );
         action.newClued.push(cardContext.isClued); // here we must use the pre-existing value, since it may have been clued before
       }
@@ -187,25 +134,6 @@
 
   function getPreviousColourInformation(cards: number[]): SuitEnum[] {
     return cards.map((id) => informationOnCardsStore.get(id).colourInformation);
-  }
-
-  function calculatePositiveColourClue(
-    colourInformation: SuitEnum,
-    colourClue: SuitEnum
-  ): SuitEnum {
-    const clueModifier = getPositiveColourClueModifier(colourInformation);
-    // Intersect as normal (this preserves modifier suits like rainbow), but
-    // OR the directly-clued colour back in so a positive clue always wins
-    // over a contradictory manual cross-off and never blanks the card.
-    return (colourInformation & (colourClue | clueModifier)) | colourClue;
-  }
-
-  function calculateNegativeColourClue(
-    colourInformation: SuitEnum,
-    colourClue: SuitEnum
-  ): SuitEnum {
-    const clueModifier = getNegativeColourClueModifier(colourInformation);
-    return colourInformation & ~(colourClue | clueModifier);
   }
 
   function updateClueFlag(card: number, isClued: boolean): void {
@@ -264,7 +192,8 @@
       } else {
         cardInformation.numberInformation = calculateNegativeNumberClue(
           cardInformation.numberInformation,
-          numberClue
+          numberClue,
+          cardInformation.knownNumberInformation
         );
         action.newClued.push(cardContext.isClued); // here we must use the pre-existing value, since it may have been clued before
       }
@@ -288,24 +217,6 @@
 
   function getPreviousNumberInformation(cards: number[]): NumberEnum[] {
     return cards.map((id) => informationOnCardsStore.get(id).numberInformation);
-  }
-
-  function calculatePositiveNumberClue(
-    numberInformation: NumberEnum,
-    numberClue: NumberEnum
-  ): NumberEnum {
-    const clueModifier = getPositiveNumberClueModifier(numberInformation);
-    // OR the clued number back in so a positive clue always wins over a
-    // contradictory manual cross-off and never blanks the card.
-    return (numberInformation & (numberClue | clueModifier)) | numberClue;
-  }
-
-  function calculateNegativeNumberClue(
-    numberInformation: NumberEnum,
-    numberClue: NumberEnum
-  ): NumberEnum {
-    const clueModifier = getNegativeNumberClueModifier(numberInformation);
-    return numberInformation & ~(numberClue | clueModifier);
   }
 
   function getPreviousClued(cards: number[]): boolean[] {

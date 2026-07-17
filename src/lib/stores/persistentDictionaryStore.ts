@@ -4,9 +4,12 @@ import { Dictionary } from "../models/dictionary";
 import { gameConfigStore, type GameConfig } from "./gameConfigStore";
 
 // Creating a generic managed store that syncs with local storage
+// `repair` runs over every stored entry on load, so a save written by an older
+// build with an unusable value can be salvaged instead of breaking the app.
 export function createManagedStore<T>(
   key: string,
-  getDefaultData: (config: GameConfig) => T
+  getDefaultData: (config: GameConfig) => T,
+  repair?: (data: T, config: GameConfig) => T
 ) {
   const localKey = import.meta.env.BASE_URL + "/" + key;
 
@@ -24,8 +27,13 @@ export function createManagedStore<T>(
   if (storedData && storedData !== "undefined") {
     store.update((currentManager) => {
       currentManager.fromJSON(storedData);
+      if (repair) {
+        const config = get(gameConfigStore);
+        currentManager.mapValues((data) => repair(data, config));
+      }
       return currentManager;
     });
+    updateLocalStore();
   }
   let firstLoad = true;
   // Subscribe to gameConfig changes

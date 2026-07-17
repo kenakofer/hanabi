@@ -4,6 +4,7 @@
   import { gameConfigStore } from "../stores/gameConfigStore";
   import { getSuits, SuitEnum, suitProperties } from "../models/variantEnums";
   import { getNumbers, NumberEnum } from "../models/numberEnums";
+  import { isSingleFlag } from "../models/clueLogic";
   import { activeMenuCard } from "../stores/menuStore";
   import { cardsSelectedStore } from "../stores/cardsSelectedStore";
   import { onMount, onDestroy } from "svelte";
@@ -135,13 +136,10 @@
     cardsSelectedStore.set(new Set<number>());
   }
 
-  function getColourCodeFromSuit(suit: SuitEnum): string {
-    return suitProperties[suit].string.toLowerCase();
+  function getColourCodeFromSuit(suit: SuitEnum): string | null {
+    return suitProperties[suit]?.string.toLowerCase() ?? null;
   }
 
-  function isSingleFlag(bitflag: SuitEnum | NumberEnum): boolean {
-    return (bitflag & (bitflag - 1)) == 0;
-  }
 
   // Toggle a black X over a single possibility on this card. Records a
   // ManualEliminate action so it can be undone like a clue. Only allowed during

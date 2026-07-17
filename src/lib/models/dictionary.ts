@@ -26,6 +26,13 @@ export class Dictionary<T> {
     this.data[id] = data;
   }
 
+  /** Rewrite every stored record in place. Does not touch the default. */
+  mapValues(transform: (data: T) => T): void {
+    for (const id of Object.keys(this.data)) {
+      this.data[Number(id)] = transform(this.data[Number(id)]);
+    }
+  }
+
   toJSON(): string {
     return JSON.stringify(this.data);
   }
