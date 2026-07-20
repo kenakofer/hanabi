@@ -227,4 +227,36 @@ describe("clue validity gate", () => {
     const selected = card(noVariant, true);
     expect(isColourClueValid([selected, doomed], SuitEnum.Red)).toBe(false);
   });
+
+  // The selected-card path. Every test above exercises only unselected cards,
+  // which is why the gate shipped unable to reject anything a player selects:
+  // it consulted calculatePositive*, whose `| clue` guard makes the result
+  // unconditionally nonzero, so no selected card could ever fail it.
+  it("hides a number a selected card is already known not to be", () => {
+    // Clues have ruled out 3 on this card; it cannot be the 3 being clued.
+    const selected = card((allNumbers & ~NumberEnum.Three) as NumberEnum, true);
+    expect(isNumberClueValid([selected], NumberEnum.Three)).toBe(false);
+  });
+
+  it("hides a colour a selected card is already known not to be", () => {
+    const selected = card((noVariant & ~SuitEnum.Red) as SuitEnum, true);
+    expect(isColourClueValid([selected], SuitEnum.Red)).toBe(false);
+  });
+
+  // The reported bug, end to end: clue card A as 3, then select card B. B took
+  // a negative 3 clue, so 3 is impossible for it and must stop being offered.
+  it("stops offering a number once the rest of the hand is negatively clued", () => {
+    const cluedThree = card(NumberEnum.Three, false, NumberEnum.Three);
+    const negativelyClued = card(
+      (allNumbers & ~NumberEnum.Three) as NumberEnum,
+      true
+    );
+    expect(
+      isNumberClueValid([cluedThree, negativelyClued], NumberEnum.Three)
+    ).toBe(false);
+    // Numbers that are still possible stay on offer.
+    expect(
+      isNumberClueValid([cluedThree, negativelyClued], NumberEnum.Four)
+    ).toBe(true);
+  });
 });

@@ -99,9 +99,16 @@ export interface ClueTarget {
 // the whole hand at once — positive to the selected cards, negative to the rest
 // — so validity is a question about the hand, not any single card.
 //
-// This asks the real calculate* functions what they would write rather than
-// re-deriving the maths, so the dialog can never offer a clue that the save
-// path would then refuse to represent.
+// The unselected half asks calculateNegative* what it would write, so the
+// dialog cannot offer a clue the save path would refuse to represent.
+//
+// The selected half cannot do the same. calculatePositive* ends in `| clue`, a
+// deliberate guard that forces the clued value in so a positive clue never
+// blanks a card. That makes its result unconditionally nonzero, so routing the
+// gate through it asks a question with only one answer and every clue looks
+// valid. The gate instead intersects directly: a selected card must already
+// have the clued value among its possibilities, which is exactly the condition
+// the guard exists to paper over at save time.
 //
 // Only clue-derived information is consulted. A player's manual cross-off lives
 // in crossed*Information and is deliberately ignored: it is a guess, and a
@@ -109,12 +116,14 @@ export interface ClueTarget {
 function isClueValid(
   hand: ClueTarget[],
   clue: number,
-  positive: (information: number, clue: number) => number,
+  modifierKey: ClueModifierKey,
   negative: (information: number, clue: number, known: number) => number
 ): boolean {
   return hand.every((card) =>
     card.isSelected
-      ? positive(card.information, clue) !== 0
+      ? (card.information &
+          (clue | getClueModifier(card.information, modifierKey))) !==
+        0
       : negative(card.information, clue, card.knownInformation) !== 0
   );
 }
@@ -126,7 +135,7 @@ export function isColourClueValid(
   return isClueValid(
     hand,
     colourClue,
-    calculatePositiveColourClue as (i: number, c: number) => number,
+    "positiveColourClueModifier",
     calculateNegativeColourClue as (i: number, c: number, k: number) => number
   );
 }
@@ -138,7 +147,7 @@ export function isNumberClueValid(
   return isClueValid(
     hand,
     numberClue,
-    calculatePositiveNumberClue as (i: number, c: number) => number,
+    "positiveNumberClueModifier",
     calculateNegativeNumberClue as (i: number, c: number, k: number) => number
   );
 }
