@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.1](https://github.com/kenakofer/hanabi/compare/v2.6.0...v2.6.1) (2026-07-20)
+
+
+### Bug Fixes
+
+* changing the card order at the same time as a suit or card-count change now takes effect, instead of being silently dropped ([c9de5e1](https://github.com/kenakofer/hanabi/commit/c9de5e1))
+
 ## [2.6.0](https://github.com/kenakofer/hanabi/compare/v2.5.0...v2.6.0) (2026-07-20)
 
 
