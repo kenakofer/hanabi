@@ -82,27 +82,18 @@
   }
 
   function saveAndClosePanel() {
+    // The game config and the card-order flag are independent, so apply each on
+    // its own. Setting gameConfigStore rebuilds the game state, so it always
+    // runs when unchanged too — that is what the "Restart game" button does.
+    const newConfig = configOutputToGameConfig(tempConfig);
     if (
-      areGameConfigsEqual(
-        get(gameConfigStore),
-        configOutputToGameConfig(tempConfig)
-      ) &&
+      !areGameConfigsEqual(get(gameConfigStore), newConfig) ||
       reversed == get(reversedStore)
     ) {
-      // reset game state
-      gameConfigStore.set(configOutputToGameConfig(tempConfig));
-    } else if (
-      areGameConfigsEqual(
-        get(gameConfigStore),
-        configOutputToGameConfig(tempConfig)
-      ) &&
-      reversed != get(reversedStore)
-    ) {
+      gameConfigStore.set(newConfig);
+    }
+    if (reversed != get(reversedStore)) {
       reversedStore.set(reversed);
-    } else {
-      // load new game config
-      gameConfigStore.set(configOutputToGameConfig(tempConfig));
-      reversed != get(reversedStore);
     }
     closePanel()
   }
