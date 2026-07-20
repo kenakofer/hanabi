@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.6.0](https://github.com/kenakofer/hanabi/compare/v2.5.0...v2.6.0) (2026-07-20)
+
+
+### Features
+
+* clarify the config modal: the reset-triggering buttons now read "Restart game" / "Apply & restart game", and the card-order checkbox is labelled "New cards on the left" ([50bde23](https://github.com/kenakofer/hanabi/commit/50bde23))
+
+
+### Bug Fixes
+
+* the Record Clue dialog now correctly hides a colour or number that a selected card can no longer be, instead of always offering every clue ([5e5108f](https://github.com/kenakofer/hanabi/commit/5e5108f))
+
 ## [2.5.0](https://github.com/kenakofer/hanabi/compare/v2.4.0...v2.5.0) (2026-07-16)
 
 
