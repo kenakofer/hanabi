@@ -134,7 +134,7 @@
       ) &&
       reversed == get(reversedStore)
     ) {
-      updateButtonText = "Reset";
+      updateButtonText = "Restart game";
       cancelButtonText = "Close";
     } else if (
       areGameConfigsEqual(
@@ -146,7 +146,7 @@
       updateButtonText = "Save";
       cancelButtonText = "Cancel";
     } else {
-      updateButtonText = "Update";
+      updateButtonText = "Apply & restart game";
       cancelButtonText = "Cancel";
     }
   }
@@ -163,7 +163,7 @@
             <option value={4}>4</option>
             <option value={5}>5</option>
           </select>
-          <label for="numberOfCards">Card order reversed: </label>
+          <label for="toggleOrder">New cards on the left: </label>
           <input type="checkbox" id="toggleOrder" bind:checked={reversed} />
         </div>
         <div>
