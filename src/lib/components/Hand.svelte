@@ -390,12 +390,29 @@
 
 <style>
   .hand {
+    --hand-gap: 10px; /* Card.svelte subtracts this when sizing cards */
     display: flex;
     flex: 1;
     place-items: center;
     justify-content: space-around; /* Distribute space around items */
     flex-wrap: wrap; /* Allow wrapping if needed */
-    gap: 10px; /* Space between cards */
+    gap: var(--hand-gap); /* Space between cards */
     width: 100%;
+  }
+
+  /* Portrait is width-starved: a tighter gap buys back most of the room a
+     fifth card needs. Cards carry no margin in portrait, so this gap is the
+     only spacing between them. */
+  @media (orientation: portrait) {
+    .hand {
+      --hand-gap: 4px;
+      /* cards set their own height, so pin the row to the top instead of
+         centring it in whatever space is left */
+      align-content: flex-start;
+      align-items: flex-start;
+      justify-content: center;
+      flex: 0 1 auto;
+      min-height: 0;
+    }
   }
 </style>

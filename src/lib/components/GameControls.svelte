@@ -336,6 +336,30 @@
     justify-content: center;
   }
 
+  /* Portrait can't fit the whole control bar on one line — at 390px the
+     buttons total ~700px and push the page into horizontal scroll. Let both
+     groups wrap and trim the button padding so the bar stays compact and the
+     hand keeps the vertical space. */
+  @media (orientation: portrait) {
+    .game-controls {
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 3px;
+      gap: 3px;
+    }
+    .primary-actions,
+    .secondary-actions {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 3px;
+      margin-left: 0; /* stop secondary actions being pushed off-row */
+    }
+    .game-controls :global(button) {
+      padding: 0.4em 0.6em;
+      font-size: 0.85rem;
+    }
+  }
+
   /* Fullscreen toggle is only useful on mobile / touch devices, so hide it
      on devices with a fine pointer (mouse) such as desktops. */
   .fullscreen-btn {

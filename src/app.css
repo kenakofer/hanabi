@@ -64,10 +64,34 @@ h1 {
   max-width: 100%;
   display: flex;
   flex: 1;
+  /* the 5px margin is inside the 100% width, otherwise `main`'s min-width:100%
+     pushes 10px past the viewport and the page scrolls sideways */
+  box-sizing: border-box;
 }
 
 main {
   min-width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Portrait screens have no width to spare for the page gutter, and centring
+   the app vertically strands the hand in the middle of a tall screen with
+   dead space above and below — anchor it to the top instead. */
+@media (orientation: portrait) {
+  #app {
+    margin: 2px;
+    align-items: stretch;
+  }
+  body {
+    min-height: 100vh;
+    place-items: start stretch;
+  }
+  /* a top-anchored column; the cards size themselves against the viewport */
+  main {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 button {

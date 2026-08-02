@@ -409,6 +409,28 @@
     overflow: visible;
   }
 
+  /* Portrait: the viewport is too narrow for the landscape sizing to fit a
+     full hand on one row. The 100px min-width alone forces a wrap at 4 cards
+     on a ~390px phone, so portrait gets its own spacing and floor: cards are
+     sized purely by the width percentages below, spacing collapses to the
+     flex gap, and the height comes from the aspect ratio rather than 70vh
+     (which is far too tall when the viewport is portrait). */
+  @media (orientation: portrait) {
+    .card {
+      /* border-box so the width percentages below are the card's real outer
+         width; under the default content-box the border and padding are added
+         on top, making every card 12px wider than its share and wrapping the
+         row. */
+      box-sizing: border-box;
+      min-width: 0;
+      margin: 0;
+      height: auto;
+      min-height: 0;
+      border-width: 3px;
+      padding: 3px;
+    }
+  }
+
   /* Selection is indicated by a large yellow, black-outlined down arrow,
      stretched 3x wide and 2x tall and overlaid on the upper portion of the
      card so it covers the label and part of the numbers. */
@@ -515,6 +537,41 @@
   .card.no-5 {
     width: calc(100% / 5 - 2px);
     aspect-ratio: 3/4;
+  }
+
+  /* Portrait widths subtract the row's flex gaps (N-1 gaps shared across N
+     cards) so a full hand fits on one line instead of wrapping. flex-grow is
+     disabled here: with it on, a wrapped card would stretch to fill its row
+     and mask the overflow rather than fitting. */
+  @media (orientation: portrait) {
+    .card.no-3,
+    .card.no-4,
+    .card.no-5 {
+      flex: 0 0 auto;
+      /* Height is a share of the viewport rather than a multiple of the narrow
+         width: a 3/4 ratio strands most of a tall screen, while filling the
+         hand outright yields 1:10 slivers. --card-max-h (set per hand size
+         below) caps it so cards stay card-shaped when few are on screen. */
+      aspect-ratio: auto;
+      height: min(58vh, var(--card-max-h));
+      min-height: 170px;
+      align-self: flex-start;
+    }
+    /* --card-max-h is ~2.2x the card's width. It's expressed in vw (not a %
+       of the parent) because a percentage height would resolve against the
+       hand's height, not its width. */
+    .card.no-3 {
+      width: calc((100% - 2 * var(--hand-gap)) / 3);
+      --card-max-h: calc(3 * 100vw / 3);
+    }
+    .card.no-4 {
+      width: calc((100% - 3 * var(--hand-gap)) / 4);
+      --card-max-h: calc(3 * 100vw / 4);
+    }
+    .card.no-5 {
+      width: calc((100% - 4 * var(--hand-gap)) / 5);
+      --card-max-h: calc(3 * 100vw / 5);
+    }
   }
 
   .card .card-id {
@@ -639,6 +696,23 @@
       font-size: 3rem;
     }
   }
+  /* Both overlays are sized for full-height landscape cards; at portrait scale
+     they'd swamp the card they annotate. */
+  @media (orientation: portrait) {
+    .cross-mark {
+      font-size: 1.6rem;
+      text-shadow:
+        -1px -1px 0 #fff,
+        1px -1px 0 #fff,
+        -1px 1px 0 #fff,
+        1px 1px 0 #fff;
+    }
+    .select-arrow {
+      top: -18px;
+      font-size: 1.75rem;
+      transform: translateX(-50%) scale(2, 1.5);
+    }
+  }
   .trait-icon:hover {
     filter: brightness(1.15);
     transform: scale(1.08);
@@ -657,6 +731,52 @@
     .colour-icons > * {
       min-width: 30px; /* Smaller size for smaller screens */
       min-height: 30px;
+    }
+  }
+
+  /* A portrait card is only ~70px wide, so a 30px floor per icon overflows as
+     soon as three possibilities remain. Let the icons shrink to share the row,
+     and trim the label/margins that were tuned for tall landscape cards. */
+  @media (orientation: portrait) {
+    .number-icons > *,
+    .colour-icons > * {
+      min-width: 0;
+      min-height: 0;
+      margin: 1px;
+    }
+    .card .colour-icons > .trait-icon {
+      margin: 0;
+      max-width: 100%;
+    }
+    .card .colour-icons {
+      gap: 1px;
+      padding-top: 2px;
+    }
+    .card-id {
+      font-size: 11px;
+      padding: 1px;
+      margin-bottom: 2px;
+      max-height: 2.4em;
+    }
+    /* The landscape percentages (10/32/46) are tuned for a much taller card
+       and leave dead bands between the rows here. Spread the rows over the
+       card instead so the icons take the space they need. */
+    .card {
+      justify-content: space-evenly;
+    }
+    .card .card-id {
+      height: auto;
+      flex: 0 0 auto;
+    }
+    .card .number-icons {
+      height: auto;
+      flex: 1 1 0;
+      min-height: 0;
+    }
+    .card .colour-icons {
+      height: auto;
+      flex: 1 1 0;
+      min-height: 0;
     }
   }
 
@@ -713,6 +833,43 @@
     width: 90%;
     margin-top: 2px;
     margin-bottom: 2px;
+  }
+
+  /* The long-press menu is unusable at a portrait card's ~70px width. Rather
+     than widening the card — which reflows the whole hand and pushes siblings
+     onto other rows — the menu escapes its card as a fixed overlay, so the
+     hand behind it stays exactly where it was. */
+  @media (orientation: portrait) {
+    .card .menu {
+      position: fixed;
+      top: 38%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(88vw, 320px);
+      height: auto;
+      z-index: 10;
+      padding: 14px 0;
+      border-radius: 10px;
+      background-color: #4a4a4a;
+      border: 1px solid #6d6d6d;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    }
+    /* scrim so the floating panel reads as modal over the hand behind it */
+    .card .menu::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    /* the host card keeps its slot in the row while its menu floats */
+    .card:has(.menu) {
+      justify-content: flex-start;
+    }
+    .menu-button,
+    .note-field {
+      width: 80%;
+    }
   }
 
   .menu-button.selected {
