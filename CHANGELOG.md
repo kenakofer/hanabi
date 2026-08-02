@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.7.0](https://github.com/kenakofer/hanabi/compare/v2.6.1...v2.7.0) (2026-08-02)
+
+
+### Features
+
+* portrait mode is usable: a full hand of 3, 4 or 5 cards now fits on one row instead of wrapping after four, and the cards use the height of a tall screen rather than a sliver of it ([bdfa4f5](https://github.com/kenakofer/hanabi/commit/bdfa4f5))
+
+
+### Bug Fixes
+
+* the page no longer scrolls sideways in portrait — the control bar wraps instead of running off the screen ([bdfa4f5](https://github.com/kenakofer/hanabi/commit/bdfa4f5))
+* the long-press card menu is readable in portrait, floating over the hand instead of being squeezed into a ~70px card ([bdfa4f5](https://github.com/kenakofer/hanabi/commit/bdfa4f5))
+
 ## [2.6.1](https://github.com/kenakofer/hanabi/compare/v2.6.0...v2.6.1) (2026-07-20)
 
 
