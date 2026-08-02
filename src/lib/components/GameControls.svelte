@@ -7,7 +7,6 @@
   import { onMount, onDestroy } from "svelte";
 
   import PlayDiscardSelectedCard from "./PlayDiscardSelectedCard.svelte";
-  import MoreActionsMenu from "./MoreActionsMenu.svelte";
   import ConfigModal from "./ConfigModal.svelte";
   import ClueModal from "./ClueModal.svelte";
   import ConventionsModal from "./ConventionsModal.svelte";
@@ -15,7 +14,6 @@
   import { informationOnCardsStore } from "../stores/informationOnCardsStore";
   import { cardsInHandStore } from "../stores/cardsInHandStore";
   import { contextOnCardsStore } from "../stores/contextOnCardsStore";
-  import type { WebAction } from "../models/webAction";
   import reviewTurnStore from "../stores/reviewTurnStore";
   import { nextCardId } from "../stores/cardIDCounterStore";
   import { version } from "../../../package.json";
@@ -45,7 +43,9 @@
 
   let wakeLock: WakeLockSentinel | null = null;
   let wakeLockSupported = "wakeLock" in navigator;
-  let wakeLockButtonText = "Keep Screen Awake"; // Action label — wake lock starts off
+  let wakeLockOn = false;
+  // Action label — describes what clicking does, not the current state.
+  $: wakeLockLabel = wakeLockOn ? "Allow Screen to Sleep" : "Keep Screen Awake";
 
   // Fullscreen toggle (shown on mobile only — see CSS). Only render the button
   // where the Fullscreen API is actually available.
@@ -82,29 +82,23 @@
     if (!wakeLock) {
       try {
         wakeLock = await navigator.wakeLock.request("screen");
+        // The browser drops the lock on its own (tab hidden, etc.) — follow it.
         wakeLock.addEventListener("release", () => {
           wakeLock = null;
-          wakeLockButtonText = "Keep Screen Awake"; // Back to the "turn it on" action
+          wakeLockOn = false;
         });
-        wakeLockButtonText = "Allow Screen to Sleep"; // Lock is on — offer to turn it off
+        wakeLockOn = true;
       } catch (err) {
         console.error(`Could not acquire wake lock: ${err}`);
       }
     } else {
       wakeLock.release();
       wakeLock = null;
-      wakeLockButtonText = "Keep Screen Awake"; // Back to the "turn it on" action
+      wakeLockOn = false;
     }
   }
 
   let actionStoreSize = actionStore.size;
-
-  let actions: WebAction[] = [
-    { label: wakeLockButtonText, action: toggleWakeLock },
-  ];
-  $: {
-    actions = [{ label: wakeLockButtonText, action: toggleWakeLock }];
-  }
 
   let reviewLabel = "Review";
   $: {
@@ -271,6 +265,18 @@
     >
       📖
     </button>
+    {#if wakeLockSupported}
+      <button
+        class="icon-btn wake-lock-btn"
+        class:active={wakeLockOn}
+        on:click={toggleWakeLock}
+        aria-pressed={wakeLockOn}
+        aria-label={wakeLockLabel}
+        title={wakeLockLabel}
+      >
+        {wakeLockOn ? "☀️" : "💤"}
+      </button>
+    {/if}
     {#if fullscreenSupported}
       <button
         class="fullscreen-btn"
@@ -284,7 +290,6 @@
     <button on:click={toggleGameOrReview}>
       {reviewLabel}
     </button>
-    <MoreActionsMenu {actions} />
   </div>
 </div>
 
@@ -334,6 +339,13 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+  }
+
+  /* Wake lock is a stateful toggle, so make "on" visible at a glance rather
+     than relying on the icon swap alone. */
+  .wake-lock-btn.active {
+    border-color: currentColor;
+    box-shadow: inset 0 0 0 1px currentColor;
   }
 
   /* Portrait can't fit the whole control bar on one line — at 390px the
