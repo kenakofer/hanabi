@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.8.0](https://github.com/kenakofer/hanabi/compare/v2.7.1...v2.8.0) (2026-10-01)
+
+
+### Features
+
+* White now sits after Green in the colour order, so it is the first standard suit dropped when the suit count is reduced ([a6d21c6](https://github.com/kenakofer/hanabi/commit/a6d21c6))
+
+
+### Bug Fixes
+
+* the colourless one-of-each special suit is now called Gray (it was misnamed Black), matching the H-group docs ([db35fa8](https://github.com/kenakofer/hanabi/commit/db35fa8))
+
 ## [2.7.1](https://github.com/kenakofer/hanabi/compare/v2.7.0...v2.7.1) (2026-08-02)
 
 
