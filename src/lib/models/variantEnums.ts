@@ -2,15 +2,15 @@ export enum SuitEnum {
   Red = 1,
   Yellow = 1 << 1,
   Blue = 1 << 2,
-  White = 1 << 3,
-  Green = 1 << 4,
+  Green = 1 << 3,
+  White = 1 << 4, // last standard colour: first dropped when the suit count is reduced
   Teal = 1 << 5, // sixth standard suit
   Rainbow = 1 << 6,
   Gray = 1 << 7,
 }
 
 export const enum Variant {
-  NoVariant = SuitEnum.Red | SuitEnum.Yellow | SuitEnum.Blue | SuitEnum.White | SuitEnum.Green,
+  NoVariant = SuitEnum.Red | SuitEnum.Yellow | SuitEnum.Blue | SuitEnum.Green | SuitEnum.White,
   SixSuits = NoVariant | SuitEnum.Teal,
   Rainbows = NoVariant | SuitEnum.Rainbow,
   Grays = NoVariant | SuitEnum.Gray,
@@ -57,19 +57,19 @@ export const suitProperties: Record<SuitEnum, SuitProperties> = {
     positiveNumberClueModifier: null,
     negativeNumberClueModifier: null,
   },
-  [SuitEnum.White]: {
-    string: 'White',
-    stringClue: "White",
-    colourClue: SuitEnum.White,
+  [SuitEnum.Green]: {
+    string: 'Green',
+    stringClue: "Green",
+    colourClue: SuitEnum.Green,
     positiveColourClueModifier: null,
     negativeColourClueModifier: null,
     positiveNumberClueModifier: null,
     negativeNumberClueModifier: null,
   },
-  [SuitEnum.Green]: {
-    string: 'Green',
-    stringClue: "Green",
-    colourClue: SuitEnum.Green,
+  [SuitEnum.White]: {
+    string: 'White',
+    stringClue: "White",
+    colourClue: SuitEnum.White,
     positiveColourClueModifier: null,
     negativeColourClueModifier: null,
     positiveNumberClueModifier: null,

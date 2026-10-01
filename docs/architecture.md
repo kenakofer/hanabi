@@ -67,8 +67,8 @@ export enum SuitEnum {
   Red = 1,
   Yellow = 1 << 1,
   Blue = 1 << 2,
-  White = 1 << 3,
-  Green = 1 << 4,
+  Green = 1 << 3,
+  White = 1 << 4,
   Teal = 1 << 5, // sixth standard suit
   Rainbow = 1 << 6,
   Gray = 1 << 7,

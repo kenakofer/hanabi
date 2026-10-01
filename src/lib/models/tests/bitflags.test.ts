@@ -59,8 +59,8 @@ describe("getSuits", () => {
       SuitEnum.Red,
       SuitEnum.Yellow,
       SuitEnum.Blue,
-      SuitEnum.White,
       SuitEnum.Green,
+      SuitEnum.White,
     ]);
   });
 
@@ -69,8 +69,8 @@ describe("getSuits", () => {
       SuitEnum.Red,
       SuitEnum.Yellow,
       SuitEnum.Blue,
-      SuitEnum.White,
       SuitEnum.Green,
+      SuitEnum.White,
       SuitEnum.Teal,
     ]);
   });
@@ -80,8 +80,8 @@ describe("getSuits", () => {
       SuitEnum.Red,
       SuitEnum.Yellow,
       SuitEnum.Blue,
-      SuitEnum.White,
       SuitEnum.Green,
+      SuitEnum.White,
       SuitEnum.Rainbow,
       SuitEnum.Gray,
     ]);
