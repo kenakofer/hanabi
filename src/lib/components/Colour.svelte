@@ -2,7 +2,7 @@
 
 <script lang="ts">
   import { SuitEnum } from "../models/variantEnums";
-  import Black from "./suit-icons/Black.svelte";
+  import Gray from "./suit-icons/Gray.svelte";
   import Blue from "./suit-icons/Blue.svelte";
   import Green from "./suit-icons/Green.svelte";
   import Rainbow from "./suit-icons/Rainbow.svelte";
@@ -41,6 +41,6 @@
 {#if colour === SuitEnum.Rainbow && isOnlyRainbow === true}
   <RainbowEmpty />
 {/if}
-{#if colour === SuitEnum.Black}
-  <Black {strokeColour} />
+{#if colour === SuitEnum.Gray}
+  <Gray {strokeColour} />
 {/if}

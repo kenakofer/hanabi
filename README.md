@@ -13,7 +13,7 @@ This is a fork of [jparkhouse/hanabi-tracker](https://github.com/jparkhouse/hana
 ## Features
 
 - Choose your hand size and the number of suits (up to 6 standard suits, plus
-  optional Rainbow and Black special suits).
+  optional Rainbow and Gray special suits).
 - Record the clues you receive (colour or number) and the cards they touch;
   positive and negative information is applied across the hand automatically.
 - **Tap a number or colour on a card to toggle a black X over it** as you

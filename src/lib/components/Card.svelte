@@ -85,9 +85,9 @@
         numberIconStyles.strokeColour = "white";
         numberIconStyles.backgroundColour = "teal";
         break;
-      case "black":
+      case "gray":
         numberIconStyles.strokeColour = "white";
-        numberIconStyles.backgroundColour = "white";
+        numberIconStyles.backgroundColour = "gray";
         break;
       case "rainbow":
         numberIconStyles.strokeColour = "black";
@@ -485,13 +485,13 @@
       1px 1px 0 #000; /* Black text shadow to create outline effect */
   }
 
-  .black {
-    background-color: #000;
+  .gray {
+    background-color: #666;
     color: white;
   }
 
-  .black.selected {
-    background-color: #151515;
+  .gray.selected {
+    background-color: #555;
   }
 
   .red {

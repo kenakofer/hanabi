@@ -69,8 +69,9 @@ export enum SuitEnum {
   Blue = 1 << 2,
   White = 1 << 3,
   Green = 1 << 4,
-  Rainbow = 1 << 5,
-  Black = 1 << 6,
+  Teal = 1 << 5, // sixth standard suit
+  Rainbow = 1 << 6,
+  Gray = 1 << 7,
 }
 ```
 By using a bitflag system, we can effectively represent the known state of a card. Each bit corresponds to a suit, and if that bit is on, we know that the card could be that suit; if the bit is off, we know that the card cannot be that suit. Applying clues can then use binary operators to handle the logic, which while less readable, is very performant, and an interesting challenge for (my personal) development. Numbers and their corresponding clues use a similar system, whereby the number 1 is the first bit, 2 is the second, etc.

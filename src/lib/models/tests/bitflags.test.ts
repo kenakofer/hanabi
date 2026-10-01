@@ -75,19 +75,19 @@ describe("getSuits", () => {
     ]);
   });
 
-  it("includes the high-bit special suits (Rainbow, Black)", () => {
-    expect(getSuits(Variant.RainbowsAndBlacks)).toEqual([
+  it("includes the high-bit special suits (Rainbow, Gray)", () => {
+    expect(getSuits(Variant.RainbowsAndGrays)).toEqual([
       SuitEnum.Red,
       SuitEnum.Yellow,
       SuitEnum.Blue,
       SuitEnum.White,
       SuitEnum.Green,
       SuitEnum.Rainbow,
-      SuitEnum.Black,
+      SuitEnum.Gray,
     ]);
   });
 
   it("returns a single suit for a single flag", () => {
-    expect(getSuits(SuitEnum.Black)).toEqual([SuitEnum.Black]);
+    expect(getSuits(SuitEnum.Gray)).toEqual([SuitEnum.Gray]);
   });
 });

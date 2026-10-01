@@ -6,15 +6,15 @@ export enum SuitEnum {
   Green = 1 << 4,
   Teal = 1 << 5, // sixth standard suit
   Rainbow = 1 << 6,
-  Black = 1 << 7,
+  Gray = 1 << 7,
 }
 
 export const enum Variant {
   NoVariant = SuitEnum.Red | SuitEnum.Yellow | SuitEnum.Blue | SuitEnum.White | SuitEnum.Green,
   SixSuits = NoVariant | SuitEnum.Teal,
   Rainbows = NoVariant | SuitEnum.Rainbow,
-  Blacks = NoVariant | SuitEnum.Black,
-  RainbowsAndBlacks = NoVariant | SuitEnum.Rainbow | SuitEnum.Black,
+  Grays = NoVariant | SuitEnum.Gray,
+  RainbowsAndGrays = NoVariant | SuitEnum.Rainbow | SuitEnum.Gray,
 }
 
 interface SuitProperties {
@@ -93,8 +93,8 @@ export const suitProperties: Record<SuitEnum, SuitProperties> = {
     positiveNumberClueModifier: null,
     negativeNumberClueModifier: null,
   },
-  [SuitEnum.Black]: {
-    string: 'Black',
+  [SuitEnum.Gray]: {
+    string: 'Gray',
     stringClue: null,
     colourClue: null,
     positiveColourClueModifier: null,

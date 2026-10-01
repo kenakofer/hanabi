@@ -10,7 +10,7 @@
   interface ConfigOutput {
     numberOfCards: number;
     numberOfStandardSuits: number;
-    blacks: boolean;
+    grays: boolean;
     rainbows: boolean;
   }
 
@@ -19,7 +19,7 @@
   let tempConfig: ConfigOutput = {
     numberOfCards: 0,
     numberOfStandardSuits: 0,
-    blacks: false,
+    grays: false,
     rainbows: false,
   };
 
@@ -33,7 +33,7 @@
         Math.pow(2, input.numberOfStandardSuits) -
         1 +
         (input.rainbows ? SuitEnum.Rainbow : 0) +
-        (input.blacks ? SuitEnum.Black : 0),
+        (input.grays ? SuitEnum.Gray : 0),
     };
     return output;
   }
@@ -42,7 +42,7 @@
     const output: ConfigOutput = {
       numberOfCards: input.numberOfCards,
       numberOfStandardSuits: getStandardSuitAmount(input.variant),
-      blacks: (input.variant & SuitEnum.Black) > 0,
+      grays: (input.variant & SuitEnum.Gray) > 0,
       rainbows: (input.variant & SuitEnum.Rainbow) > 0,
     };
     return output;
@@ -72,7 +72,7 @@
 
     if (
       tempConfig.numberOfStandardSuits === 0 &&
-      !tempConfig.blacks &&
+      !tempConfig.grays &&
       !tempConfig.rainbows
     ) {
       validConfig = false;
@@ -178,8 +178,8 @@
             <input type="checkbox" bind:checked={tempConfig.rainbows} />
           </label>
           <label>
-            Blacks:
-            <input type="checkbox" bind:checked={tempConfig.blacks} />
+            Grays:
+            <input type="checkbox" bind:checked={tempConfig.grays} />
           </label>
         </div>
       </div>

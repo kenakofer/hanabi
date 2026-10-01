@@ -1,7 +1,7 @@
-<!-- /lib/components/colour-icons/Black.svelte -->
+<!-- /lib/components/colour-icons/Gray.svelte -->
 
 <script lang="ts">
-  let backgroundColour: string = "black";
+  let backgroundColour: string = "gray";
   export let strokeColour: string = "white";
 </script>
 
@@ -13,7 +13,7 @@
   role="img"
   preserveAspectRatio="xMidYMid meet"
 >
-  <title>Black colour icon</title>
+  <title>Gray colour icon</title>
   <path
     fill={backgroundColour}
     fill-rule="evenodd"
